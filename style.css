@@ -176,12 +176,15 @@ body {
   align-items: stretch;
   gap: 15px;
   width: 100%;
-  overflow-x: auto; /* горизонтальный скролл при нехватке ширины */
+  overflow-x: auto;
   flex: 1;
   padding: 10px;
   box-sizing: border-box;
-  white-space: nowrap; /* запрещает переносы */
+  white-space: nowrap;
+  transition: all 0.4s ease;
+  scroll-behavior: smooth;
 }
+
 
 
 
@@ -197,9 +200,12 @@ body {
 
 /* Расширение карточки */
 .class-card.expanded {
-  width: calc(100% - 40px); /* вся ширина с отступами 20px слева и справа */
+  width: calc(100% - 40px); /* ширина с отступами */
   max-width: 600px;
+  margin: 0 auto; /* центрируем карточку */
+  z-index: 2;
 }
+
 
 
 .class-card.expanded .class-description {
@@ -208,9 +214,12 @@ body {
 
 /* Свёрнутые карточки */
 .class-card.collapsed {
-  height: 0;
   opacity: 0;
-  padding: 0;
-  margin: 0;
   pointer-events: none;
+  width: 0;
+  margin: 0;
+  padding: 0;
+  transform: scale(0.9);
+  transition: all 0.3s ease;
 }
+
