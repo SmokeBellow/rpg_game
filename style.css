@@ -153,8 +153,8 @@ body {
 
 /* Карточки классов */
 .class-card {
-  flex: 1;
-  min-width: 100px;
+  width: 100px;
+  flex-shrink: 0; /* предотвращает уменьшение при прокрутке */
   transition: all 0.4s ease;
   overflow: hidden;
   border-radius: 12px;
@@ -164,22 +164,25 @@ body {
   flex-direction: column;
   justify-content: flex-start;
   box-sizing: border-box;
-  margin-bottom: 10px;
 }
+
 
 
 /* Кнопки классов */
 .class-buttons {
   display: flex;
   flex-direction: row;
-  justify-content: center;
-  align-items: stretch; /* растягивает по вертикали */
+  justify-content: flex-start;
+  align-items: stretch;
   gap: 15px;
   width: 100%;
+  overflow-x: auto; /* горизонтальный скролл при нехватке ширины */
   flex: 1;
-  padding-bottom: 10px;
+  padding: 10px;
   box-sizing: border-box;
+  white-space: nowrap; /* запрещает переносы */
 }
+
 
 
 .class-button:hover {
@@ -194,9 +197,10 @@ body {
 
 /* Расширение карточки */
 .class-card.expanded {
-  transform: scale(1.1);
-  width: 250px;
+  width: calc(100% - 40px); /* вся ширина с отступами 20px слева и справа */
+  max-width: 600px;
 }
+
 
 .class-card.expanded .class-description {
   display: block;
