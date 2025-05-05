@@ -1,4 +1,4 @@
-/* Общие стили для всей страницы */
+/* === Общие стили === */
 body {
   margin: 0;
   padding: 0;
@@ -13,7 +13,7 @@ body {
   position: relative;
 }
 
-/* Общие стили для всех экранов */
+/* === Экранная обёртка === */
 .screen {
   position: absolute;
   top: 0;
@@ -43,7 +43,7 @@ body {
   z-index: 0;
 }
 
-/* Экран студии */
+/* === Экран студии === */
 .studio-title {
   font-size: 28px;
   color: white;
@@ -52,11 +52,11 @@ body {
 
 .logo {
   width: 150px;
-  height: 150px; /* Квадратная форма */
+  height: 150px; /* Квадрат */
   object-fit: cover;
 }
 
-/* Главное меню */
+/* === Главное меню === */
 #main-menu {
   background-image: url('main_background.jpg');
   background-size: cover;
@@ -66,9 +66,14 @@ body {
   text-shadow: 1px 1px 4px black;
   padding: 20px;
   text-align: center;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
-/* Затемняющий фон для читаемости текста */
+/* Затемнение фона */
 #main-menu::before {
   content: "";
   position: absolute;
@@ -80,13 +85,13 @@ body {
   z-index: 0;
 }
 
-/* Контент главного меню — поверх затемнения */
+/* Контент поверх затемнения */
 #main-menu > * {
   position: relative;
   z-index: 1;
 }
 
-/* Заголовок игры */
+/* Заголовок */
 .game-title {
   font-size: 32px;
   margin-bottom: 40px;
@@ -97,11 +102,11 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 80%;
+  width: 100%;
   max-width: 300px;
 }
 
-/* Кнопки меню */
+/* Кнопки */
 .menu-button {
   background-color: white;
   color: black;
@@ -112,15 +117,16 @@ body {
   border-radius: 10px;
   cursor: pointer;
   transition: background-color 0.3s ease;
-  width: 100%; /* одинаковая ширина */
+  width: 100%;
   box-sizing: border-box;
+  text-align: center;
 }
 
 .menu-button:hover {
   background-color: #ddd;
 }
 
-/* Экран "Новая игра" */
+/* === Экран "Новая игра" === */
 .new-game-screen {
   background-image: url('main_background.jpg');
   background-size: cover;
@@ -130,6 +136,11 @@ body {
   text-shadow: 1px 1px 4px black;
   padding: 20px;
   text-align: center;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 .new-game-title {
