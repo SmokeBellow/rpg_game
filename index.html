@@ -7,19 +7,51 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+
   <!-- Экран студии -->
   <div id="studio-screen" class="screen visible">
-    <h1 class="studio-title">MurMyak Games</h1>
-    <img src="logo.png" alt="Логотип" class="logo" />
+    <div class="studio-title">MurMyak Games</div>
+    <img src="logo.png" alt="Logo" class="logo" />
   </div>
 
   <!-- Главное меню -->
   <div id="main-menu" class="screen hidden">
-    <h1 class="game-title">The Text RPG</h1>
+    <h1 class="game-title">MurMyak RPG</h1>
     <div class="menu-buttons">
-      <button class="menu-button">Новая игра</button>
-      <button class="menu-button">Загрузить игру</button>
-      <button class="menu-button">Об игре</button>
+      <button class="menu-button" id="new-game-btn">Новая игра</button>
+      <button class="menu-button" id="load-game-btn">Загрузить игру</button>
+      <button class="menu-button" id="about-btn">Об игре</button>
+    </div>
+  </div>
+
+  <!-- Экран выбора персонажа -->
+  <div id="character-select-screen" class="screen hidden">
+    <h2 class="character-title">Выберите класс персонажа</h2>
+    <div class="class-buttons">
+      <div class="class-card" data-class="warrior">
+        <button class="class-button">🗡️ Воин</button>
+        <div class="class-description">
+          Сильный и выносливый боец ближнего боя. Идеален для прямых атак.
+        </div>
+      </div>
+      <div class="class-card" data-class="mage">
+        <button class="class-button">🔥 Маг</button>
+        <div class="class-description">
+          Повелитель стихий, владеющий разрушительной магией и слабой броней.
+        </div>
+      </div>
+      <div class="class-card" data-class="archer">
+        <button class="class-button">🏹 Лучник</button>
+        <div class="class-description">
+          Меткий стрелок, умеющий держаться на расстоянии и быстро перемещаться.
+        </div>
+      </div>
+      <div class="class-card" data-class="rogue">
+        <button class="class-button">🗡️ Плут</button>
+        <div class="class-description">
+          Хитрый и быстрый убийца из тени, мастер ловушек и обмана.
+        </div>
+      </div>
     </div>
   </div>
 
