@@ -1,57 +1,33 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MurMyak RPG</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MurMyak Games</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-  <!-- Экран студии -->
-  <div id="studio-screen" class="screen visible">
-    <div class="studio-title">MurMyak Games</div>
-    <img src="logo.png" alt="Logo" class="logo" />
-  </div>
-
-  <!-- Главное меню -->
-  <div id="main-menu" class="screen hidden">
-    <h1 class="game-title">MurMyak RPG</h1>
-    <div class="menu-buttons">
-      <button class="menu-button" id="new-game-btn">Новая игра</button>
-      <button class="menu-button" id="load-game-btn">Загрузить игру</button>
-      <button class="menu-button" id="about-btn">Об игре</button>
+  <!-- Первый экран -->
+  <div id="screen1" class="screen">
+    <div class="title">
+      <h1>MurMyak Games</h1>
+      <img src="logo.png" alt="Logo">
     </div>
   </div>
 
-  <!-- Экран выбора персонажа -->
-  <div id="character-select-screen" class="screen hidden">
-    <h2 class="character-title">Выберите класс персонажа</h2>
-    <div class="class-buttons">
-      <div class="class-card" data-class="warrior">
-        <button class="class-button">🗡️ Воин</button>
-        <div class="class-description">
-          Сильный и выносливый боец ближнего боя. Идеален для прямых атак.
-        </div>
-      </div>
-      <div class="class-card" data-class="mage">
-        <button class="class-button">🔥 Маг</button>
-        <div class="class-description">
-          Повелитель стихий, владеющий разрушительной магией и слабой броней.
-        </div>
-      </div>
-      <div class="class-card" data-class="archer">
-        <button class="class-button">🏹 Лучник</button>
-        <div class="class-description">
-          Меткий стрелок, умеющий держаться на расстоянии и быстро перемещаться.
-        </div>
-      </div>
-      <div class="class-card" data-class="rogue">
-        <button class="class-button">🗡️ Плут</button>
-        <div class="class-description">
-          Хитрый и быстрый убийца из тени, мастер ловушек и обмана.
-        </div>
-      </div>
+  <!-- Второй экран -->
+  <div id="screen2" class="screen">
+    <h1 class="title">RPG Game</h1>
+  </div>
+
+  <!-- Третий экран -->
+  <div id="screen3" class="screen">
+    <h1 class="title stone-texture">RPG Game</h1>
+    <div class="buttons">
+      <button class="game-btn">Новая игра</button>
+      <button class="game-btn">Загрузить игру</button>
+      <button class="game-btn">Об игре</button>
     </div>
   </div>
 
