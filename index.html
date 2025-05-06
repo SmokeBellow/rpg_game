@@ -1,28 +1,24 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RPG Game</title>
-    <link rel="stylesheet" href="styles.css">
-	<link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet">
+    <title>Game</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="screen1" class="screen active">
-        <div class="logo-container">
-            <h1>MurMyak Games</h1>
-            <img src="logo.png" alt="Logo" class="logo">
-        </div>
+    <div id="splash-screen" class="screen active">
+        <h1>MurMyak Games</h1>
+        <img src="logo.png" alt="Logo" class="logo">
     </div>
-    <div id="screen2" class="screen">
-        <h1>RPG Game</h1>
+    <div id="title-screen" class="screen">
+        <h1>RPG Games</h1>
     </div>
-    <div id="screen3" class="screen">
-        <h1 class="title">RPG Game</h1>
+    <div id="menu-screen" class="screen">
         <div class="menu">
-            <button onclick="startNewGame()">Новая игра</button>
-            <button onclick="loadGame()">Загрузить игру</button>
-            <button onclick="showAbout()">Об игре</button>
+            <button id="new-game">Новая игра</button>
+            <button id="load-game">Загрузить игру</button>
+            <button id="about-game">Об игре</button>
         </div>
     </div>
     <script src="script.js"></script>
