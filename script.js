@@ -5,6 +5,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const classSelectScreen = document.getElementById('class-select-screen');
     const newGameButton = document.getElementById('new-game');
 
+    // Проверка, что кнопка найдена
+    if (!newGameButton) {
+        console.error('Кнопка "Новая игра" не найдена!');
+        return;
+    }
+
     // Переход от splash к title через 3 секунды
     setTimeout(() => {
         splashScreen.classList.remove('active');
@@ -19,6 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Переход к экрану выбора класса по клику на "Новая игра"
     newGameButton.addEventListener('click', () => {
+        console.log('Кнопка "Новая игра" нажата'); // Отладка
         menuScreen.classList.remove('active');
         classSelectScreen.classList.add('active');
     });
