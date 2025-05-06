@@ -18,13 +18,15 @@ body {
     justify-content: center;
     align-items: center;
     opacity: 0;
-    transition: opacity 1s ease-in-out;
-    z-index: 0; /* Базовый уровень для скрытых экранов */
+    visibility: hidden; /* Скрываем неактивные экраны */
+    transition: opacity 1s ease-in-out, visibility 1s;
+    z-index: 0;
 }
 
 .screen.active {
     opacity: 1;
-    z-index: 1; /* Активный экран поверх остальных */
+    visibility: visible; /* Показываем активный экран */
+    z-index: 1;
 }
 
 #splash-screen {
@@ -79,7 +81,7 @@ body {
     cursor: pointer;
     transition: background-color 0.3s, transform 0.2s;
     touch-action: manipulation;
-    -webkit-tap-highlight-color: transparent; /* Убирает подсветку при касании в Safari */
+    -webkit-tap-highlight-color: transparent;
 }
 
 .menu button:hover {
