@@ -26,19 +26,20 @@ body {
 }
 
 #splash-screen {
-    background-color: #000;
-    color: #fff;
+    background-color: #000; /* Чёрный фон */
+    color: #fff; /* Белый текст */
 }
 
 #splash-screen h1 {
-    font-size: 8vw; /* Масштабируемый шрифт */
+    font-size: 8vw;
     margin-bottom: 5vw;
+    color: #fff; /* Явно задаём белый цвет для заголовка */
 }
 
 .logo {
-    width: 30vw; /* Масштабируемый размер логотипа */
+    width: 30vw;
     height: 30vw;
-    max-width: 150px; /* Ограничение для больших экранов */
+    max-width: 150px;
     max-height: 150px;
 }
 
@@ -75,7 +76,7 @@ body {
     border-radius: 10px;
     cursor: pointer;
     transition: background-color 0.3s, transform 0.2s;
-    touch-action: manipulation; /* Улучшает отзывчивость на сенсорных экранах */
+    touch-action: manipulation;
 }
 
 .menu button:hover {
@@ -84,11 +85,11 @@ body {
 }
 
 .menu button:active {
-    transform: scale(0.95); /* Эффект нажатия */
+    transform: scale(0.95);
 }
 
 /* Медиазапросы для смартфонов */
-@media (max-width: 600px) {
+@media (max  {
     #splash-screen h1 {
         font-size: 12vw;
     }
@@ -109,7 +110,7 @@ body {
     }
 
     .menu button {
-        padding: 5vw 10vw;
+        padding vidas: 5vw 10vw;
         font-size: 7vw;
     }
 }
