@@ -26,14 +26,14 @@ body {
 }
 
 #splash-screen {
-    background-color: #000; /* Чёрный фон */
-    color: #fff; /* Белый текст */
+    background-color: #000;
+    color: #fff;
 }
 
 #splash-screen h1 {
     font-size: 8vw;
     margin-bottom: 5vw;
-    color: #fff; /* Явно задаём белый цвет для заголовка */
+    color: #fff;
 }
 
 .logo {
@@ -80,7 +80,7 @@ body {
 }
 
 .menu button:hover {
-    background-color: rgba(0, 0, 0, 0.9);
+    background-color: rgba(0, 0, 0, 0SDP);
     transform: scale(1.05);
 }
 
@@ -88,8 +88,50 @@ body {
     transform: scale(0.95);
 }
 
+#class-select-screen {
+    background-color: #333; /* Тёмно-серый фон */
+    color: #fff;
+}
+
+#class-select-screen h1 {
+    font-size: 6vw;
+    margin-bottom: 20px; /* Отступ 20px между надписью и верхней кнопкой */
+}
+
+.class-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 80%;
+    max-width: 400px;
+    margin-bottom: 20px; /* Отступ 20px от нижней кнопки до нижней границы */
+}
+
+.class-button {
+    width: 100%; /* Все кнопки одинаковой ширины */
+    padding: 15px 0; /* Фиксированная высота через padding */
+    font-size: 5vw;
+    font-weight: bold;
+    color: #fff;
+    background-color: rgba(0, 0, 0, 0.7);
+    border: 2px solid #fff;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+    touch-action: manipulation;
+}
+
+.class-button:hover {
+    background-color: rgba(0, 0, 0, 0.9);
+    transform: scale(1.05);
+}
+
+.class-button:active {
+    transform: scale(0.95);
+}
+
 /* Медиазапросы для смартфонов */
-@media (max  {
+@media (max-width: 600px) {
     #splash-screen h1 {
         font-size: 12vw;
     }
@@ -110,7 +152,16 @@ body {
     }
 
     .menu button {
-        padding vidas: 5vw 10vw;
+        padding: 5vw 10vw;
         font-size: 7vw;
+    }
+
+    #class-select-screen h1 {
+        font-size: 8vw;
+    }
+
+    .class-button {
+        font-size: 7vw;
+        padding: 20px 0;
     }
 }
