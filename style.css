@@ -80,7 +80,7 @@ body {
 }
 
 .menu button:hover {
-    background-color: rgba(0, 0, 0, 0SDP);
+    background-color: rgba(0, 0, 0, 0.9); /* Исправлено: было 0SDP */
     transform: scale(1.05);
 }
 
@@ -89,13 +89,13 @@ body {
 }
 
 #class-select-screen {
-    background-color: #333; /* Тёмно-серый фон */
+    background-color: #333;
     color: #fff;
 }
 
 #class-select-screen h1 {
     font-size: 6vw;
-    margin-bottom: 20px; /* Отступ 20px между надписью и верхней кнопкой */
+    margin-bottom: 20px;
 }
 
 .class-menu {
@@ -104,12 +104,12 @@ body {
     gap: 15px;
     width: 80%;
     max-width: 400px;
-    margin-bottom: 20px; /* Отступ 20px от нижней кнопки до нижней границы */
+    margin-bottom: 20px;
 }
 
 .class-button {
-    width: 100%; /* Все кнопки одинаковой ширины */
-    padding: 15px 0; /* Фиксированная высота через padding */
+    width: 100%;
+    padding: 15px 0;
     font-size: 5vw;
     font-weight: bold;
     color: #fff;
