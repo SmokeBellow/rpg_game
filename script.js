@@ -1,140 +1,121 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const splashScreen = document.getElementById('splash-screen');
-    const titleScreen = document.getElementById('title-screen');
-    const menuScreen = document.getElementById('menu-screen');
-    const classSelectScreen = document.getElementById('class-select-screen');
-    const newGameButton = document.getElementById('new-game');
-    const classButtons = document.querySelectorAll('.class-button');
-    const classMenu = document.querySelector('.class-menu');
+const locations = {
+  "Деревня": {
+    desc: "Тихая деревушка с пахнущими свежим хлебом улицами.",
+    paths: ["Лес", "Река"]
+  },
+  "Лес": {
+    desc: "Густой лес, где свет едва пробивается сквозь кроны.",
+    paths: ["Деревня", "Горы", "Поляна"]
+  },
+  "Река": {
+    desc: "Быстрая река с холодной, чистой водой.",
+    paths: ["Деревня", "Пещера"]
+  },
+  "Горы": {
+    desc: "Суровые вершины, покрытые снегом.",
+    paths: ["Лес", "Развалины"]
+  },
+  "Поляна": {
+    desc: "Заброшенная поляна с странными знаками.",
+    paths: ["Лес", "Башня"]
+  },
+  "Пещера": {
+    desc: "Темная пещера, откуда слышны странные звуки.",
+    paths: ["Река", "Развалины"]
+  },
+  "Развалины": {
+    desc: "Останки древнего города, скрывающие тайны.",
+    paths: ["Горы", "Пещера", "Храм"]
+  },
+  "Башня": {
+    desc: "Одинокая башня, возвышающаяся над землей.",
+    paths: ["Поляна", "Храм"]
+  },
+  "Храм": {
+    desc: "Заброшенный храм с таинственными символами.",
+    paths: ["Башня", "Развалины", "Портал"]
+  },
+  "Портал": {
+    desc: "Мерцающий портал в неизвестность.",
+    paths: ["Храм"]
+  }
+};
 
-    // Проверка наличия всех элементов
-    console.log('Проверка элементов:');
-    console.log('splashScreen:', splashScreen);
-    console.log('titleScreen:', titleScreen);
-    console.log('menuScreen:', menuScreen);
-    console.log('classSelectScreen:', classSelectScreen);
-    console.log('newGameButton:', newGameButton);
-    console.log('classButtons:', classButtons);
+let playerData = {
+  class: null,
+  location: "Деревня"
+};
 
-    if (!splashScreen || !titleScreen || !menuScreen || !classSelectScreen) {
-        console.error('Один или несколько экранов не найдены!');
-        return;
-    }
-    if (!newGameButton) {
-        console.error('Кнопка "Новая игра" не найдена!');
-        return;
-    }
+function showElement(id) {
+  document.getElementById(id).classList.remove("hidden");
+}
+function hideElement(id) {
+  document.getElementById(id).classList.add("hidden");
+}
 
-    // Переход от splash к title через 3 секунды
-    setTimeout(() => {
-        console.log('Переход: splash → title');
-        console.log('splashScreen до: ', splashScreen.classList);
-        splashScreen.classList.remove('active');
-        titleScreen.classList.add('active');
-        console.log('splashScreen после: ', splashScreen.classList);
-        console.log('titleScreen после: ', titleScreen.classList);
-        
-        // Переход от title к menu через 3 секунды
-        setTimeout(() => {
-            console.log('Переход: title → menu');
-            console.log('titleScreen до: ', titleScreen.classList);
-            titleScreen.classList.remove('active');
-            menuScreen.classList.add('active');
-            console.log('titleScreen после: ', titleScreen.classList);
-            console.log('menuScreen после: ', menuScreen.classList);
-        }, 3000);
-    }, 3000);
+setTimeout(() => {
+  hideElement("splash-dev");
+  showElement("splash-title");
+  setTimeout(() => {
+    hideElement("splash-title");
+    showElement("main-menu");
+  }, 3000);
+}, 3000);
 
-    // Переход к экрану выбора класса
-    const goToClassSelect = () => {
-        console.log('Кнопка "Новая игра" нажата');
-        menuScreen.classList.remove('active');
-        classSelectScreen.classList.add('active');
-        console.log('menuScreen после: ', menuScreen.classList);
-        console.log('classSelectScreen после: ', classSelectScreen.classList);
+function startNewGame() {
+  hideElement("main-menu");
+  showElement("class-selection");
+}
+function showAbout() {
+  hideElement("main-menu");
+  showElement("about-screen");
+}
+function backToMenu() {
+  hideElement("about-screen");
+  showElement("main-menu");
+}
+function toggleDescription(cls) {
+  document.querySelectorAll(".description").forEach(el => el.classList.add("hidden"));
+  const desc = document.getElementById("desc-" + cls);
+  desc.classList.toggle("hidden");
+  playerData.class = cls;
+}
+function chooseClass() {
+  if (!playerData.class) return alert("Выберите класс!");
+  saveGame();
+  startGame();
+}
+function startGame() {
+  hideElement("class-selection");
+  showElement("game-screen");
+  updateLocation();
+}
+function updateLocation() {
+  const loc = playerData.location;
+  document.getElementById("location-name").innerText = loc;
+  document.getElementById("location-desc").innerText = locations[loc].desc;
+
+  const buttons = document.getElementById("location-buttons");
+  buttons.innerHTML = "";
+  locations[loc].paths.forEach(path => {
+    const btn = document.createElement("button");
+    btn.innerText = path;
+    btn.onclick = () => {
+      playerData.location = path;
+      saveGame();
+      updateLocation();
     };
-
-    newGameButton.addEventListener('click', goToClassSelect);
-    newGameButton.addEventListener('touchstart', (e) => {
-        e.preventDefault();
-        console.log('Сенсорное событие: touchstart');
-        goToClassSelect();
-    });
-
-    // Описания классов
-    const classDescriptions = {
-        archer: 'Лучник — мастер дальнего боя, использующий лук и стрелы для точных и быстрых атак. Идеален для тех, кто предпочитает держать врагов на расстоянии.',
-        mage: 'Маг владеет мощными заклинаниями, способными наносить урон по площади или контролировать поле боя. Требует тактического подхода и управления маной.',
-        warrior: 'Воин — стойкий боец ближнего боя, полагающийся на силу и выносливость. Отлично справляется с прямыми атаками и защитой союзников.',
-        rogue: 'Плут — скрытный и ловкий, специализирующийся на ударах из тени и быстрых манёврах. Подходит для игроков, любящих хитрость и скорость.'
-    };
-
-    // Обработка выбора класса
-    classButtons.forEach(button => {
-        const handleClassSelect = (e) => {
-            e.preventDefault();
-            const className = button.getAttribute('data-class');
-            console.log(`Выбран класс: ${className}`);
-
-            // Скрыть остальные кнопки мгновенно
-            classButtons.forEach(btn => {
-                if (btn !== button) {
-                    btn.style.display = 'none';
-                }
-            });
-
-            // Создать блок с описанием класса
-            const details = document.createElement('div');
-            details.className = 'class-details';
-            details.innerHTML = `
-                <h2>${button.textContent}</h2>
-                <p>${classDescriptions[className]}</p>
-                <button class="select-class">Выбрать</button>
-                <button class="back-class">Назад</button>
-            `;
-
-            // Заменить кнопку на блок
-            button.replaceWith(details);
-
-            // Обработчик для кнопки "Назад"
-            const backButton = details.querySelector('.back-class');
-            backButton.addEventListener('click', () => {
-                console.log('Нажата кнопка "Назад"');
-                // Восстановить все кнопки
-                classButtons.forEach(btn => {
-                    btn.style.display = 'block';
-                });
-                // Вернуть исходный контейнер
-                details.replaceWith(classMenu);
-                classMenu.style.display = 'flex';
-            });
-            backButton.addEventListener('touchstart', (e) => {
-                e.preventDefault();
-                console.log('Сенсорное событие: Назад');
-                classButtons.forEach(btn => {
-                    btn.style.display = 'block';
-                });
-                details.replaceWith(classMenu);
-                classMenu.style.display = 'flex';
-            });
-
-            // Обработчик для кнопки "Выбрать"
-            const selectButton = details.querySelector('.select-class');
-            selectButton.addEventListener('click', () => {
-                console.log(`Подтверждён выбор класса: ${className}`);
-                // Здесь можно добавить логику для продолжения игры
-            });
-            selectButton.addEventListener('touchstart', (e) => {
-                e.preventDefault();
-                console.log(`Сенсорное событие: Выбрать класс ${className}`);
-                // Здесь можно добавить логику для продолжения игры
-            });
-        };
-
-        button.addEventListener('click', handleClassSelect);
-        button.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            handleClassSelect(e);
-        });
-    });
-});
+    buttons.appendChild(btn);
+  });
+}
+function saveGame() {
+  localStorage.setItem("rpgSave", JSON.stringify(playerData));
+}
+function continueGame() {
+  const save = localStorage.getItem("rpgSave");
+  if (!save) return alert("Сохранение не найдено.");
+  playerData = JSON.parse(save);
+  hideElement("main-menu");
+  showElement("game-screen");
+  updateLocation();
+}
