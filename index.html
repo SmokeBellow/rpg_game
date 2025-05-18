@@ -1,18 +1,19 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Тени Элидора</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Тени Предтеч</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div id="splash-dev" class="center-screen">Murmyak Games</div>
-  <div id="splash-title" class="center-screen hidden">Тени Элидора</div>
+
+  <div id="splash-dev">Murmyak Games</div>
+  <div id="splash-title">Тени Предтеч</div>
 
   <div id="main-menu" class="hidden">
-    <h1>Главное меню</h1>
-    <button onclick="startNewGame()">Новая игра</button>
+    <h1>Тени Предтеч</h1>
+    <button onclick="newGame()">Новая игра</button>
     <button onclick="continueGame()">Продолжить игру</button>
     <button onclick="showAbout()">Об игре</button>
   </div>
@@ -25,34 +26,30 @@
 
   <div id="class-selection" class="hidden">
     <h2>Выберите класс</h2>
-
-    <div class="class-option" onclick="toggleDescription('archer')">
-      Лучник
-      <div id="desc-archer" class="description hidden">
-        Мастер дальнего боя. <br>Снаряжение: лук, кожаный доспех.
+    <div class="class-option" onclick="toggleClassInfo('archer')">
+      <strong>Лучник</strong>
+      <div id="archer-info" class="hidden">
+        Мастер дальнего боя. Снаряжение: лук, кожаная броня, кольчужный капюшон.
       </div>
     </div>
-
-    <div class="class-option" onclick="toggleDescription('warrior')">
-      Воин
-      <div id="desc-warrior" class="description hidden">
-        Сильный боец ближнего боя. <br>Снаряжение: меч, щит, кольчуга.
+    <div class="class-option" onclick="toggleClassInfo('warrior')">
+      <strong>Воин</strong>
+      <div id="warrior-info" class="hidden">
+        Сильный и выносливый. Снаряжение: меч, щит, стальная броня.
       </div>
     </div>
-
-    <div class="class-option" onclick="toggleDescription('rogue')">
-      Плут
-      <div id="desc-rogue" class="description hidden">
-        Хитрый и ловкий. <br>Снаряжение: кинжал, мантия, отмычки.
+    <div class="class-option" onclick="toggleClassInfo('rogue')">
+      <strong>Плут</strong>
+      <div id="rogue-info" class="hidden">
+        Ловкий и скрытный. Снаряжение: кинжалы, плащ теней, маска.
       </div>
     </div>
-
-    <button onclick="chooseClass()">Выбрать</button>
+    <button onclick="selectClass()">Выбрать</button>
   </div>
 
   <div id="game-screen" class="hidden">
-    <h2 id="location-name">Локация</h2>
-    <p id="location-desc">Описание локации</p>
+    <h2 id="location-name"></h2>
+    <p id="location-desc"></p>
     <div id="location-buttons"></div>
   </div>
 
