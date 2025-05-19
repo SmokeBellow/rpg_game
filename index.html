@@ -44,7 +44,22 @@
       margin: 10px auto;
     }
 
-    #splash-dev, #splash-title {
+    #splash-dev {
+      font-size: 2em;
+      position: fixed;
+      top: 30vh;
+      width: 100%;
+      transition: opacity 0.5s ease;
+      z-index: 10;
+    }
+
+    #splash-dev img {
+      display: block;
+      max-width: 200px;
+      margin: 20px auto 0;
+    }
+
+    #splash-title {
       font-size: 2em;
       position: fixed;
       top: 40vh;
@@ -92,6 +107,10 @@
       text-align: justify;
     }
 
+    #location-buttons button {
+      margin: 2px;
+    }
+
     .class-option {
       cursor: pointer;
       margin: 10px auto;
@@ -107,12 +126,19 @@
       border-color: #888;
     }
 
+    #extra-content {
+      width: 80%;
+      margin: 0 auto;
+    }
+
     .section-title {
       margin-top: 15px;
       font-weight: bold;
       cursor: pointer;
       display: block;
-      text-align: left;
+      text-align: center;
+      margin-left: auto;
+      margin-right: auto;
     }
 
     .section-title::after {
@@ -130,7 +156,9 @@
       margin-bottom: 10px;
       font-size: 0.95em;
       color: #ccc;
-      text-align: left;
+      text-align: center;
+      margin-left: auto;
+      margin-right: auto;
     }
 
     .section-content.hidden {
@@ -139,7 +167,10 @@
   </style>
 </head>
 <body>
-  <div id="splash-dev">Murmyak Games</div>
+  <div id="splash-dev">
+    Murmyak Games
+    <img src="logo.png" alt="Murmyak Games Logo">
+  </div>
   <div id="splash-title" class="hidden">Эхо Древних</div>
 
   <div id="main-menu" class="hidden">
