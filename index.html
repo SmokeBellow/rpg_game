@@ -57,7 +57,11 @@
       display: block;
       width: 200px;
       height: 200px;
-      object-fit: contain;
+      min-width: 200px;
+      min-height: 200px;
+      aspect-ratio: 1 / 1;
+      object-fit: cover;
+      background-color: #222;
       margin: 20px auto 0;
     }
 
@@ -135,6 +139,7 @@
 
     .section-title {
       margin-top: 15px;
+      margin-bottom: 10px;
       font-weight: bold;
       cursor: pointer;
       display: block;
@@ -155,6 +160,7 @@
     }
 
     .section-content {
+      margin-top: 5px;
       margin-bottom: 10px;
       font-size: 0.95em;
       color: #ccc;
@@ -477,7 +483,7 @@
         monsters: ["Песчаный ящер"]
       },
       "Равнина": {
-        desc: "Бескрайняя равнина, где травы шепчут о забытых битвах. Вдалеке виднеются силуэты древних курганов.",
+        desc: "Бескрайняя равнина, где травы шепчут о забытых битвах. Вдалеке yourselves силуэты древних курганов.",
         paths: ["Каньон", "Крепость"],
         characters: [],
         monsters: ["Степной волк"]
