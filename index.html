@@ -549,7 +549,11 @@
     <h2 id="npc-name"></h2>
     <p id="npc-desc"></p>
     <p id="npc-text"></p>
-    <button id="npc-quest" onclick="takeQuest()">Взять задание</button>
+    
+<p id="quest-limit-msg" style="color: #f88; margin-bottom: 10px; display: none;">
+  У вас не может больше четырёх активных квестов. Сначала завершите уже начатые квесты.
+</p>
+<button id="npc-quest" onclick="takeQuest()">Взять задание</button>
     <button id="npc-exit" onclick="closeNpcDialog()">Выйти</button>
   </div>
 
@@ -721,11 +725,27 @@
       document.getElementById("npc-image").src = npcData[name].image;
       currentNpc = name;
 
-      // Проверяем, взят ли квест
+      // Проверяем, взят ли квест или превышен лимит
       const questButton = document.getElementById("npc-quest");
-      if (playerData.quests.find(q => q.npc === name)) {
+      const questLimitMsg = document.getElementById("quest-limit-msg");
+
+      const alreadyTaken = playerData.quests.find(q => q.npc === name);
+      const tooManyQuests = playerData.quests.length >= 4;
+
+      if (alreadyTaken) {
         questButton.classList.add("hidden");
+        questLimitMsg.style.display = "none";
+      } else if (tooManyQuests) {
+        questButton.disabled = true;
+        questButton.style.opacity = "0.5";
+        questButton.style.cursor = "not-allowed";
+        questLimitMsg.style.display = "block";
+        questButton.classList.remove("hidden");
       } else {
+        questButton.disabled = false;
+        questButton.style.opacity = "1";
+        questButton.style.cursor = "pointer";
+        questLimitMsg.style.display = "none";
         questButton.classList.remove("hidden");
       }
 
