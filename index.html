@@ -1,4 +1,43 @@
-<!DOCTYPE html>
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
@@ -172,9 +211,107 @@
     .section-content.hidden {
       display: none;
     }
+
+    #menu-button {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      z-index: 30;
+      background-color: #444;
+      border: none;
+      color: white;
+      font-size: 30px;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    #menu-button:hover {
+      background-color: #555;
+    }
+
+    #sidebar-menu {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 66.67%;
+      height: 100%;
+      background-color: #333333;
+      transform: translateX(-100%);
+      transition: transform 0.3s ease;
+      z-index: 30;
+      display: flex;
+      flex-direction: column;
+      padding: 64px 20px 20px 20px;
+      box-sizing: border-box;
+    }
+
+    #sidebar-menu.open {
+      transform: translateX(0);
+      opacity: 1;
+    }
+
+    #sidebar-menu button {
+      background-color: #444;
+      color: #f0f0f0;
+      margin: 10px 0;
+      width: 100%;
+      text-align: left;
+      transition: background-color 0.3s ease;
+      font-family: Arial, 'Segoe UI Emoji', sans-serif;
+    }
+
+    #sidebar-menu button:hover {
+      background-color: #555;
+    }
+
+    #sidebar-close {
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      width: 40px !important;
+      height: 40px !important;
+      min-width: 40px;
+      min-height: 40px;
+      background-color: #333;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      box-sizing: border-box;
+      padding: 0;
+      border: none;
+      overflow: hidden;
+      appearance: none;
+      -webkit-appearance: none;
+      z-index: 1;
+    }
+
+    #sidebar-close img {
+      width: 24px;
+      height: 24px;
+      object-fit: contain;
+    }
+
+    #sidebar-close:hover {
+      background-color: #444;
+    }
   </style>
 </head>
 <body>
+  <div id="menu-button" onclick="toggleMenu()"><span>☰</span></div>
+  <div id="sidebar-menu" class="hidden">
+    <button id="sidebar-close" onclick="toggleMenu()"><img src="close.PNG" alt="Закрыть"></button>
+    <button id="sidebar-about-character" onclick="showAboutCharacter()">ℹ️ Об игроке</button>
+    <button onclick="showInventory()">🎒 Инвентарь</button>
+    <button onclick="showSkills()">⚔️ Умения</button>
+    <button onclick="showQuests()">📜 Квесты</button>
+  </div>
   <div id="splash-dev">
     Murmyak Games
     <img src="logo.png" alt="Murmyak Games Logo">
@@ -242,6 +379,59 @@
           el.classList.remove("visible");
           el.classList.add("hidden");
         });
+      // Закрыть боковое меню
+      document.getElementById("sidebar-menu").classList.remove("open");
+      document.getElementById("menu-button").querySelector("span").innerText = "☰";
+      document.getElementById("menu-button").classList.add("hidden");
+    }
+
+    // Управление боковым меню
+    function closeMenuOnOutsideClick(event) {
+      const sidebar = document.getElementById("sidebar-menu");
+      const menuButton = document.getElementById("menu-button");
+      if (sidebar.classList.contains("open") &&
+          !event.target.closest("#sidebar-menu") &&
+          !event.target.closest("#menu-button")) {
+        toggleMenu();
+      }
+    }
+
+    function toggleMenu() {
+      const sidebar = document.getElementById("sidebar-menu");
+      const menuIcon = document.getElementById("menu-button").querySelector("span");
+      sidebar.classList.toggle("open");
+      if (sidebar.classList.contains("open")) {
+        menuIcon.innerText = "✖";
+        sidebar.classList.remove("hidden");
+        sidebar.classList.add("visible");
+        document.addEventListener("click", closeMenuOnOutsideClick);
+      } else {
+        menuIcon.innerText = "☰";
+        sidebar.classList.remove("visible");
+        document.removeEventListener("click", closeMenuOnOutsideClick);
+        setTimeout(() => {
+          if (!sidebar.classList.contains("open")) {
+            sidebar.classList.add("hidden");
+          }
+        }, 300); // Задержка для завершения анимации
+      }
+    }
+
+    // Заглушки для кнопок меню
+    function showAboutCharacter() {
+      alert("Раздел 'Об игроке' в разработке!");
+    }
+
+    function showInventory() {
+      alert("Раздел 'Инвентарь' в разработке!");
+    }
+
+    function showSkills() {
+      alert("Раздел 'Умения' в разработке!");
+    }
+
+    function showQuests() {
+      alert("Раздел 'Квесты' в разработке!");
     }
 
     // Splash-экраны
@@ -314,11 +504,14 @@
 
     // Классы
     function toggleClassInfo(id) {
+      const options = document.querySelectorAll(".class-option");
+      options.forEach(opt => {
+        const info = opt.querySelector("div[id$='-info']");
+        opt.classList.remove("selected");
+        info.classList.add("hidden");
+      });
       const el = document.getElementById(id + "-info");
       el.classList.toggle("hidden");
-      // Управление классом selected
-      const options = document.querySelectorAll(".class-option");
-      options.forEach(opt => opt.classList.remove("selected"));
       if (!el.classList.contains("hidden")) {
         el.parentElement.classList.add("selected");
       }
@@ -370,6 +563,8 @@
       resetScreens();
       document.getElementById("game-screen").classList.remove("hidden");
       document.getElementById("game-screen").classList.add("visible");
+      document.getElementById("menu-button").classList.remove("hidden");
+      document.getElementById("menu-button").classList.add("visible");
       updateLocation();
     }
 
@@ -397,6 +592,8 @@
           resetScreens();
           document.getElementById("game-screen").classList.remove("hidden");
           document.getElementById("game-screen").classList.add("visible");
+          document.getElementById("menu-button").classList.remove("hidden");
+          document.getElementById("menu-button").classList.add("visible");
           updateLocation();
         }
       }, 1000);
@@ -483,7 +680,7 @@
         monsters: ["Песчаный ящер"]
       },
       "Равнина": {
-        desc: "Бескрайняя равнина, где травы шепчут о забытых битвах. Вдалеке yourselves силуэты древних курганов.",
+        desc: "Бескрайняя равнина, где травы шепчут о забытых битвах. Вдалеке виднеются силуэты древних курганов.",
         paths: ["Каньон", "Крепость"],
         characters: [],
         monsters: ["Степной волк"]
