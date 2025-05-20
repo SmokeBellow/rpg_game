@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Неоконченные сказания</title>
+  <link href="https://fonts.googleapis.com/css2?family=Uncial+Antiqua&display=swap" rel="stylesheet">
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -66,7 +67,10 @@
     }
 
     #splash-title {
+      font-family: 'Uncial Antiqua', serif;
       font-size: 2em;
+      font-weight: 700;
+      color: #d9e4dd; /* Мягкий серебристый */
       position: fixed;
       top: 40vh;
       width: 100%;
@@ -74,9 +78,20 @@
       z-index: 10;
       white-space: normal;
       overflow-wrap: break-word;
-      padding-left: 10px;
-      padding-right: 10px;
       line-height: 1.2;
+      letter-spacing: 2px;
+      text-shadow: 0 0 5px rgba(217, 228, 221, 0.3), 0 0 10px rgba(217, 228, 221, 0.2);
+      -webkit-text-stroke: 1px #333;
+      animation: glow 2s ease-in-out infinite alternate;
+    }
+
+    @keyframes glow {
+      from {
+        text-shadow: 0 0 5px rgba(217, 228, 221, 0.3), 0 0 10px rgba(217, 228, 221, 0.2);
+      }
+      to {
+        text-shadow: 0 0 8px rgba(217, 228, 221, 0.4), 0 0 12px rgba(217, 228, 221, 0.3);
+      }
     }
 
     #main-menu {
@@ -108,6 +123,7 @@
       align-items: center;
       transition: opacity 0.5s ease;
       z-index: 20;
+      flex-direction: column;
     }
 
     #travel-screen.visible {
@@ -118,6 +134,14 @@
     #travel-timer {
       font-size: 1.5em;
       color: #f0f0f0;
+    }
+
+    #travel-text {
+      font-size: 0.9em;
+      color: #ccc;
+      margin-top: 10px;
+      text-align: center;
+      max-width: 80%;
     }
 
     #location-desc {
@@ -431,6 +455,9 @@
     @media (max-width: 600px) {
       #splash-title {
         font-size: 1.5em;
+        letter-spacing: 1px;
+        -webkit-text-stroke: 0.5px #333;
+        text-shadow: 0 0 4px rgba(217, 228, 221, 0.3), 0 0 8px rgba(217, 228, 221, 0.2);
       }
 
       #npc-dialog {
@@ -513,10 +540,10 @@
     Murmyak Games
     <img src="logo.png" alt="Murmyak Games Logo">
   </div>
-  <div id="splash-title" class="hidden">Неоконченные<br>сказания</div>
+  <div id="splash-title" class="hidden">Endless<br>adventure</div>
 
   <div id="main-menu" class="hidden">
-    <h1>Неоконченные сказания</h1>
+    <h1>Endless adventure</h1>
     <div class="menu-button">
       <button onclick="newGame()">Новая игра</button>
     </div>
@@ -566,6 +593,7 @@
 
   <div id="travel-screen" class="hidden">
     <div id="travel-timer">Вы идёте...</div>
+    <p id="travel-text"></p>
   </div>
 
   <div id="npc-dialog" class="hidden">
@@ -686,6 +714,25 @@
         condition: "Выявить и разоблачить заговорщиков",
         reward: "Орден коменданта (+влияние)"
       }
+    };
+
+    // Тексты для экрана перехода
+    const travelTexts = {
+      "Деревня": "Тепло очагов зовёт путника домой...",
+      "Лес": "Тени шепчут в чаще, скрывая путь...",
+      "Река": "Я в своем познании настолько преисполнился...",
+      "Горы": "Ветер несёт эхо древних битв...",
+      "Поляна": "Звёзды над поляной предвещают судьбу...",
+      "Пещера": "Тьма пещеры хранит забытые тайны...",
+      "Развалины": "Камни помнят славу ушедших эпох...",
+      "Башня": "Эфир кружит у стен одинокой башни...",
+      "Храм": "Свет вечного огня манит вперёд...",
+      "Портал": "Иные миры ждут за гранью света...",
+      "Озеро": "Гладь озера скрывает древние секреты...",
+      "Болото": "Туман болот таит смертельные ловушки...",
+      "Каньон": "Красные скалы хранят знаки предков...",
+      "Равнина": "Травы шепчут о героях прошлого...",
+      "Крепость": "Стены крепости помнят клятвы рыцарей..."
     };
 
     // Сброс всех экранов
@@ -1010,10 +1057,12 @@
       resetScreens();
       const travelScreen = document.getElementById("travel-screen");
       const travelTimer = document.getElementById("travel-timer");
+      const travelText = document.getElementById("travel-text");
       travelScreen.classList.remove("hidden");
       travelScreen.classList.add("visible");
       let timeLeft = Math.ceil(duration / 1000);
       travelTimer.innerText = `Вы идёте в ${locationAccusative[targetLocation]}... ${timeLeft} сек`;
+      travelText.innerText = travelTexts[targetLocation] || "Путь манит вперёд...";
 
       const interval = setInterval(() => {
         timeLeft--;
