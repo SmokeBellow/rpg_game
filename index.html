@@ -317,7 +317,7 @@
     }
 
     #npc-desc {
-      grid-column: 2Secretary / 3;
+      grid-column: 2 / 3;
       grid-row: 1 / 2;
       color: #ccc;
       font-size: 1em;
@@ -337,6 +337,18 @@
       overflow-y: auto;
     }
 
+    #quest-limit-msg {
+      position: fixed;
+      bottom: 105px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: #f88;
+      font-size: 0.9em;
+      margin: 0;
+      width: 200px;
+      text-align: center;
+    }
+
     #npc-quest {
       position: fixed;
       bottom: 65px;
@@ -347,11 +359,17 @@
       width: 200px;
       padding: 10px 20px;
       cursor: pointer;
-      transition: background-color 0.3s ease;
+      transition: background-color 0.3s ease, opacity 0.3s ease;
     }
 
-    #npc-quest:hover {
+    #npc-quest:hover:not(:disabled) {
       background-color: #555;
+    }
+
+    #npc-quest:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      background-color: #333;
     }
 
     #npc-exit {
@@ -455,6 +473,12 @@
         overflow-y: auto;
       }
 
+      #quest-limit-msg {
+        bottom: 95px;
+        width: 150px;
+        font-size: 0.8em;
+      }
+
       #npc-quest {
         bottom: 55px;
         width: 150px;
@@ -549,11 +573,10 @@
     <h2 id="npc-name"></h2>
     <p id="npc-desc"></p>
     <p id="npc-text"></p>
-    
-<p id="quest-limit-msg" style="color: #f88; margin-bottom: 10px; display: none;">
-  У вас не может больше четырёх активных квестов. Сначала завершите уже начатые квесты.
-</p>
-<button id="npc-quest" onclick="takeQuest()">Взять задание</button>
+    <p id="quest-limit-msg" class="hidden">
+      У вас не может больше четырёх активных квестов. Сначала завершите уже начатые квесты.
+    </p>
+    <button id="npc-quest" onclick="takeQuest()">Взять задание</button>
     <button id="npc-exit" onclick="closeNpcDialog()">Выйти</button>
   </div>
 
@@ -613,7 +636,7 @@
       }
     };
 
-    // Данные квестов
+    // Данные квестов (без Мудрой жабы)
     const questData = {
       "Староста Лем": {
         title: "Пропавший гонец",
@@ -638,12 +661,6 @@
         desc: "Поймай редкого сомавра",
         condition: "Поймать и принести сомавра",
         reward: "Серебряный крючок (+удача в рыбалке)"
-      },
-      "Мудрая жаба": {
-        title: "Тихая вода",
-        desc: "Очисти пруд от скверны",
-        condition: "Уничтожить источник скверны в пруду",
-        reward: "Зелье мудрости (+интуиция)"
       },
       "Страж Ролан": {
         title: "Тихая башня",
@@ -725,28 +742,28 @@
       document.getElementById("npc-image").src = npcData[name].image;
       currentNpc = name;
 
-      // Проверяем, взят ли квест или превышен лимит
       const questButton = document.getElementById("npc-quest");
       const questLimitMsg = document.getElementById("quest-limit-msg");
 
-      const alreadyTaken = playerData.quests.find(q => q.npc === name);
-      const tooManyQuests = playerData.quests.length >= 4;
-
-      if (alreadyTaken) {
+      if (name === "Мудрая жаба") {
         questButton.classList.add("hidden");
-        questLimitMsg.style.display = "none";
-      } else if (tooManyQuests) {
-        questButton.disabled = true;
-        questButton.style.opacity = "0.5";
-        questButton.style.cursor = "not-allowed";
-        questLimitMsg.style.display = "block";
-        questButton.classList.remove("hidden");
+        questLimitMsg.classList.add("hidden");
       } else {
-        questButton.disabled = false;
-        questButton.style.opacity = "1";
-        questButton.style.cursor = "pointer";
-        questLimitMsg.style.display = "none";
-        questButton.classList.remove("hidden");
+        const alreadyTaken = playerData.quests.find(q => q.npc === name);
+        const tooManyQuests = playerData.quests.length >= 4;
+
+        if (alreadyTaken) {
+          questButton.classList.add("hidden");
+          questLimitMsg.classList.add("hidden");
+        } else if (tooManyQuests) {
+          questButton.disabled = true;
+          questButton.classList.remove("hidden");
+          questLimitMsg.classList.remove("hidden");
+        } else {
+          questButton.disabled = false;
+          questButton.classList.remove("hidden");
+          questLimitMsg.classList.add("hidden");
+        }
       }
 
       dialog.classList.remove("hidden");
@@ -766,7 +783,7 @@
     function takeQuest() {
       if (currentNpc && questData[currentNpc]) {
         const quest = questData[currentNpc];
-        if (!playerData.quests.find(q => q.npc === currentNpc)) {
+        if (!playerData.quests.find(q => q.npc === currentNpc) && playerData.quests.length < 4) {
           playerData.quests.push({
             npc: currentNpc,
             title: quest.title,
