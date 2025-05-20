@@ -1,43 +1,4 @@
-<script type="text/javascript">
-        var gk_isXlsx = false;
-        var gk_xlsxFileLookup = {};
-        var gk_fileData = {};
-        function filledCell(cell) {
-          return cell !== '' && cell != null;
-        }
-        function loadFileData(filename) {
-        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
-            try {
-                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
-                var firstSheetName = workbook.SheetNames[0];
-                var worksheet = workbook.Sheets[firstSheetName];
-
-                // Convert sheet to JSON to filter blank rows
-                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
-                // Filter out blank rows (rows where all cells are empty, null, or undefined)
-                var filteredData = jsonData.filter(row => row.some(filledCell));
-
-                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
-                var headerRowIndex = filteredData.findIndex((row, index) =>
-                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
-                );
-                // Fallback
-                if (headerRowIndex === -1 || headerRowIndex > 25) {
-                  headerRowIndex = 0;
-                }
-
-                // Convert filtered JSON back to CSV
-                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
-                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
-                return csv;
-            } catch (e) {
-                console.error(e);
-                return "";
-            }
-        }
-        return gk_fileData[filename] || "";
-        }
-        </script><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
@@ -118,7 +79,7 @@
       transition: opacity 0.5s ease;
     }
 
-    #about-screen, #class-selection, #game-screen {
+    #about-screen, #class-selection, #game-screen, #npc-dialog {
       z-index: 5;
       transition: opacity 0.5s ease;
     }
@@ -242,7 +203,7 @@
       height: 100%;
       background-color: #333333;
       transform: translateX(-100%);
-      transition: transform 0.3s ease;
+      transition: transform 0.3s ease, opacity 0.3s ease;
       z-index: 30;
       display: flex;
       flex-direction: column;
@@ -253,6 +214,10 @@
     #sidebar-menu.open {
       transform: translateX(0);
       opacity: 1;
+    }
+
+    #sidebar-menu.open ~ #menu-button {
+      display: none;
     }
 
     #sidebar-menu button {
@@ -270,14 +235,16 @@
     }
 
     #sidebar-close {
-      position: absolute;
-      top: 4px;
-      left: 4px;
+      position: fixed;
+      top: 10px;
+      left: 10px;
       width: 40px !important;
       height: 40px !important;
       min-width: 40px;
       min-height: 40px;
-      background-color: #333;
+      background-color: #444;
+      color: #ffffff !important;
+      font-size: 30px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -289,24 +256,75 @@
       overflow: hidden;
       appearance: none;
       -webkit-appearance: none;
-      z-index: 1;
-    }
-
-    #sidebar-close img {
-      width: 24px;
-      height: 24px;
-      object-fit: contain;
+      z-index: 30;
     }
 
     #sidebar-close:hover {
+      background-color: #555;
+    }
+
+    #npc-dialog {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #111;
+      z-index: 25;
+      transition: opacity 0.5s ease;
+      box-sizing: border-box;
+      padding: 20px;
+    }
+
+    #npc-dialog.visible {
+      opacity: 1;
+      display: block;
+    }
+
+    #npc-image {
+      float: left;
+      height: calc(100% - 30px);
+      max-width: 200px;
+      margin: 15px 0 15px 15px;
+      object-fit: cover;
+    }
+
+    #npc-name {
+      margin-left: 230px;
+      color: #f0f0f0;
+      font-size: 1.8em;
+      margin-top: 20px;
+      margin-bottom: 10px;
+    }
+
+    #npc-text {
+      margin-left: 230px;
+      color: #f0f0f0;
+      font-size: 1.1em;
+      margin-bottom: 20px;
+      max-width: 600px;
+      text-align: left;
+    }
+
+    #npc-exit {
+      margin-left: 230px;
       background-color: #444;
+      color: white;
+      width: 200px;
+      padding: 10px 20px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    #npc-exit:hover {
+      background-color: #555;
     }
   </style>
 </head>
 <body>
   <div id="menu-button" onclick="toggleMenu()"><span>☰</span></div>
   <div id="sidebar-menu" class="hidden">
-    <button id="sidebar-close" onclick="toggleMenu()"><img src="close.PNG" alt="Закрыть"></button>
+    <button id="sidebar-close" onclick="toggleMenu()">✖</button>
     <button id="sidebar-about-character" onclick="showAboutCharacter()">ℹ️ Об игроке</button>
     <button onclick="showInventory()">🎒 Инвентарь</button>
     <button onclick="showSkills()">⚔️ Умения</button>
@@ -371,17 +389,62 @@
     <div id="travel-timer">Вы идёте...</div>
   </div>
 
+  <div id="npc-dialog" class="hidden">
+    <img id="npc-image" src="" alt="NPC">
+    <h2 id="npc-name"></h2>
+    <p id="npc-text"></p>
+    <button id="npc-exit" onclick="closeNpcDialog()">Выйти</button>
+  </div>
+
   <script>
+    // Данные NPC
+    const npcData = {
+      "Староста Лем": {
+        text: "Деревня в беде! Тени из леса крадут наш скот. Помоги, герой, и мы щедро наградим тебя!",
+        image: "oldman.jpg"
+      },
+      "Кузнец Бран": {
+        text: "Мой молот куёт лучшие клинки! Принеси мне руду из пещеры, и я сделаю тебе меч!",
+        image: "blacksmith.jpg"
+      },
+      "Охотница Элира": {
+        text: "Лес полон опасностей. Я знаю тропы, но мне нужен спутник. Готов ли ты сразиться с тенями?",
+        image: "hunter.jpg"
+      },
+      "Рыбак Нор": {
+        text: "Река шепчет о древнем артефакте в глубинах. Найди его, и я поделюсь своей добычей!",
+        image: "fisherman.jpg"
+      },
+      "Мудрец Айрен": {
+        text: "Поляна хранит тайны звёзд. Ответь на мою загадку, и я открою тебе путь к мудрости!",
+        image: "sage.jpg"
+      },
+      "Страж башни Ролан": {
+        text: "Башня заперта магией. Принеси кристалл из храма, и я пропущу тебя к вершине!",
+        image: "guard.jpg"
+      },
+      "Старец Вейн": {
+        text: "Озеро скрывает реликвию древних. Погрузись вглубь, но берегись духов воды!",
+        image: "elder.jpg"
+      },
+      "Скиталец Кайр": {
+        text: "Каньон полон ловушек. Я знаю безопасный путь, но мне нужна твоя помощь в бою!",
+        image: "wanderer.jpg"
+      },
+      "Комендант Рейн": {
+        text: "Крепость пала, но её сокровища целы. Очисти залы от врагов, и я дам тебе ключ!",
+        image: "commander.jpg"
+      }
+    };
+
     // Сброс всех экранов
     function resetScreens() {
-      document.querySelectorAll("#splash-dev, #splash-title, #main-menu, #about-screen, #class-selection, #game-screen, #travel-screen")
+      document.querySelectorAll("#splash-dev, #splash-title, #main-menu, #about-screen, #class-selection, #game-screen, #travel-screen, #npc-dialog")
         .forEach(el => {
           el.classList.remove("visible");
           el.classList.add("hidden");
         });
-      // Закрыть боковое меню
       document.getElementById("sidebar-menu").classList.remove("open");
-      document.getElementById("menu-button").querySelector("span").innerText = "☰";
       document.getElementById("menu-button").classList.add("hidden");
     }
 
@@ -389,32 +452,51 @@
     function closeMenuOnOutsideClick(event) {
       const sidebar = document.getElementById("sidebar-menu");
       const menuButton = document.getElementById("menu-button");
+      const sidebarClose = document.getElementById("sidebar-close");
       if (sidebar.classList.contains("open") &&
           !event.target.closest("#sidebar-menu") &&
-          !event.target.closest("#menu-button")) {
+          !event.target.closest("#menu-button") &&
+          !event.target.closest("#sidebar-close")) {
         toggleMenu();
       }
     }
 
     function toggleMenu() {
       const sidebar = document.getElementById("sidebar-menu");
-      const menuIcon = document.getElementById("menu-button").querySelector("span");
       sidebar.classList.toggle("open");
       if (sidebar.classList.contains("open")) {
-        menuIcon.innerText = "✖";
         sidebar.classList.remove("hidden");
         sidebar.classList.add("visible");
         document.addEventListener("click", closeMenuOnOutsideClick);
       } else {
-        menuIcon.innerText = "☰";
         sidebar.classList.remove("visible");
         document.removeEventListener("click", closeMenuOnOutsideClick);
         setTimeout(() => {
           if (!sidebar.classList.contains("open")) {
             sidebar.classList.add("hidden");
           }
-        }, 300); // Задержка для завершения анимации
+        }, 300);
       }
+    }
+
+    // Экран разговора с NPC
+    function showNpcDialog(name) {
+      resetScreens();
+      const dialog = document.getElementById("npc-dialog");
+      document.getElementById("npc-name").innerText = name;
+      document.getElementById("npc-text").innerText = npcData[name].text;
+      document.getElementById("npc-image").src = npcData[name].image;
+      dialog.classList.remove("hidden");
+      dialog.classList.add("visible");
+    }
+
+    function closeNpcDialog() {
+      resetScreens();
+      document.getElementById("game-screen").classList.remove("hidden");
+      document.getElementById("game-screen").classList.add("visible");
+      document.getElementById("menu-button").classList.remove("hidden");
+      document.getElementById("menu-button").classList.add("visible");
+      updateLocation();
     }
 
     // Заглушки для кнопок меню
@@ -453,10 +535,10 @@
             resetScreens();
             document.getElementById("main-menu").classList.remove("hidden");
             document.getElementById("main-menu").classList.add("visible");
-          }, 500); // Задержка для завершения анимации
-        }, 3000); // Длительность splash-title
-      }, 500); // Задержка для завершения анимации splash-dev
-    }, 3000); // Длительность splash-dev
+          }, 500);
+        }, 3000);
+      }, 500);
+    }, 3000);
 
     // Состояние игры
     let playerData = {
@@ -522,7 +604,6 @@
       resetScreens();
       document.getElementById("class-selection").classList.remove("hidden");
       document.getElementById("class-selection").classList.add("visible");
-      // Сброс выделения
       document.querySelectorAll(".class-option").forEach(opt => opt.classList.remove("selected"));
     }
 
@@ -707,7 +788,7 @@
         btn.innerText = path;
         btn.onclick = () => {
           const distance = locationDistances[path];
-          const travelTime = Math.min(distance * 5000, 15000); // расстояние * 5 сек, максимум 15 сек
+          const travelTime = Math.min(distance * 5000, 15000);
           showTravelScreen(path, travelTime);
         };
         buttons.appendChild(btn);
@@ -724,9 +805,12 @@
         content.className = "section-content hidden";
 
         data.characters.forEach(name => {
-          const p = document.createElement("div");
-          p.innerText = name;
-          content.appendChild(p);
+          const btn = document.createElement("button");
+          btn.innerText = name;
+          btn.style.width = "100%";
+          btn.style.margin = "5px 0";
+          btn.onclick = () => showNpcDialog(name);
+          content.appendChild(btn);
         });
 
         charTitle.onclick = () => {
