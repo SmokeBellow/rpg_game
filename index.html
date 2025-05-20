@@ -72,11 +72,22 @@
       width: 100%;
       transition: opacity 0.5s ease;
       z-index: 10;
+      white-space: normal;
+      overflow-wrap: break-word;
+      padding-left: 10px;
+      padding-right: 10px;
     }
 
     #main-menu {
       z-index: 5;
       transition: opacity 0.5s ease;
+      padding-left: 10px;
+      padding-right: 10px;
+    }
+
+    #main-menu h1 {
+      white-space: normal;
+      overflow-wrap: break-word;
     }
 
     #about-screen, #class-selection, #game-screen, #npc-dialog {
@@ -489,9 +500,9 @@
         desc: "Седой рыбак, знающий тайны реки и её духов.",
         image: "fisherman.jpg"
       },
-      "Мудрая жаба": {
-        text: "Жаба говорит: пей больше воды и высыпайся!",
-        desc: "Она знает больше, чем кажется, и всегда говорит по делу",
+      "Мудрец Айрен": {
+        text: "Поляна хранит тайны звёзд. Ответь на мою загадку, и я открою тебе путь к мудрости!",
+        desc: "Таинственный старец, чьи слова полны космической мудрости.",
         image: "sage.jpg"
       },
       "Страж башни Ролан": {
@@ -789,7 +800,7 @@
       "Поляна": {
         desc: "Лунная поляна, где свет звёзд создаёт магические узоры. Здесь время замирает, а духи шепчут пророчества.",
         paths: ["Лес", "Башня"],
-        characters: ["Мудрая жаба"],
+        characters: ["Мудрец Айрен"],
         monsters: []
       },
       "Пещера": {
