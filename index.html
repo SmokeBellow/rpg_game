@@ -274,40 +274,61 @@
       transition: opacity 0.5s ease;
       box-sizing: border-box;
       padding: 20px;
+      display: grid;
+      grid-template-columns: 33.33% 66.67%;
+      grid-template-rows: 33.33% 66.67% auto;
+      gap: 10px;
     }
 
     #npc-dialog.visible {
       opacity: 1;
-      display: block;
+      display: grid;
     }
 
     #npc-image {
-      float: left;
-      max-width: 150px;
-      max-height: 150px; /* Изменено для квадратной формы */
-      margin: 15px 0 15px 15px;
+      grid-column: 1 / 2;
+      grid-row: 1 / 2;
+      width: 150px;
+      height: 150px;
       object-fit: cover;
+      margin: 15px;
     }
 
     #npc-name {
-      margin-left: 180px;
+      grid-column: 2 / 3;
+      grid-row: 1 / 2;
       color: #f0f0f0;
       font-size: 1.8em;
-      margin-top: 20px;
-      margin-bottom: 10px;
-    }
-
-    #npc-text {
-      margin-left: 180px;
-      color: #f0f0f0;
-      font-size: 1.1em;
-      margin-bottom: 20px;
-      max-width: 600px;
+      margin: 15px 15px 5px 15px;
       text-align: left;
     }
 
+    #npc-desc {
+      grid-column: 2 / 3;
+      grid-row: 1 / 2;
+      color: #ccc;
+      font-size: 1em;
+      margin: 50px 15px 15px 15px;
+      text-align: left;
+      max-width: 600px;
+    }
+
+    #npc-text {
+      grid-column: 1 / 3;
+      grid-row: 2 / 3;
+      color: #f0f0f0;
+      font-size: 1.1em;
+      margin: 15px;
+      text-align: left;
+      max-height: 100%;
+      overflow-y: auto;
+    }
+
     #npc-exit {
-      margin-left: 180px;
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
       background-color: #444;
       color: white;
       width: 200px;
@@ -321,12 +342,48 @@
     }
 
     @media (max-width: 600px) {
-      #npc-image {
-        max-width: 100px;
-        max-height: 100px;
+      #npc-dialog {
+        grid-template-columns: 100%;
+        grid-template-rows: auto auto 1fr auto;
+        padding: 10px;
       }
-      #npc-name, #npc-text, #npc-exit {
-        margin-left: 130px; /* 100px + 15px + 15px */
+
+      #npc-image {
+        grid-column: 1 / 2;
+        grid-row: 1 / 2;
+        width: 100px;
+        height: 100px;
+        margin: 10px auto;
+      }
+
+      #npc-name {
+        grid-column: 1 / 2;
+        grid-row: 2 / 3;
+        font-size: 1.5em;
+        margin: 10px;
+        text-align: center;
+      }
+
+      #npc-desc {
+        grid-column: 1 / 2;
+        grid-row: 3 / 4;
+        font-size: 0.9em;
+        margin: 0 10px 10px 10px;
+        text-align: center;
+      }
+
+      #npc-text {
+        grid-column: 1 / 2;
+        grid-row: 4 / 5;
+        font-size: 1em;
+        margin: 10px;
+        max-height: 100%;
+        overflow-y: auto;
+      }
+
+      #npc-exit {
+        bottom: 10px;
+        width: 150px;
       }
     }
   </style>
@@ -402,6 +459,7 @@
   <div id="npc-dialog" class="hidden">
     <img id="npc-image" src="" alt="NPC">
     <h2 id="npc-name"></h2>
+    <p id="npc-desc"></p>
     <p id="npc-text"></p>
     <button id="npc-exit" onclick="closeNpcDialog()">Выйти</button>
   </div>
@@ -411,38 +469,47 @@
     const npcData = {
       "Староста Лем": {
         text: "Деревня в беде! Тени из леса крадут наш скот. Помоги, герой, и мы щедро наградим тебя!",
+        desc: "Мудрый глава деревни, чьи глаза хранят тревогу за свой народ.",
         image: "oldman.jpg"
       },
       "Кузнец Бран": {
         text: "Мой молот куёт лучшие клинки! Принеси мне руду из пещеры, и я сделаю тебе меч!",
+        desc: "Грубый, но мастеровитый кузнец, чьи руки создают оружие легенд.",
         image: "blacksmith.jpg"
       },
       "Охотница Элира": {
         text: "Лес полон опасностей. Я знаю тропы, но мне нужен спутник. Готов ли ты сразиться с тенями?",
+        desc: "Ловкая следопытка, чьё сердце принадлежит дикому лесу.",
         image: "hunter.jpg"
       },
       "Рыбак Нор": {
         text: "Река шепчет о древнем артефакте в глубинах. Найди его, и я поделюсь своей добычей!",
+        desc: "Седой рыбак, знающий тайны реки и её духов.",
         image: "fisherman.jpg"
       },
       "Мудрец Айрен": {
         text: "Поляна хранит тайны звёзд. Ответь на мою загадку, и я открою тебе путь к мудрости!",
+        desc: "Таинственный старец, чьи слова полны космической мудрости.",
         image: "sage.jpg"
       },
       "Страж башни Ролан": {
         text: "Башня заперта магией. Принеси кристалл из храма, и я пропущу тебя к вершине!",
+        desc: "Суровый воин, верный своему долгу охранять башню.",
         image: "guard.jpg"
       },
       "Старец Вейн": {
         text: "Озеро скрывает реликвию древних. Погрузись вглубь, но берегись духов воды!",
+        desc: "Хранитель озёрных легенд, чей взор устремлён в глубины.",
         image: "elder.jpg"
       },
       "Скиталец Кайр": {
         text: "Каньон полон ловушек. Я знаю безопасный путь, но мне нужна твоя помощь в бою!",
+        desc: "Бродяга с острым умом, знающий каждый уголок каньона.",
         image: "wanderer.jpg"
       },
       "Комендант Рейн": {
         text: "Крепость пала, но её сокровища целы. Очисти залы от врагов, и я дам тебе ключ!",
+        desc: "Бывший лидер крепости, жаждущий вернуть её былую славу.",
         image: "commander.jpg"
       }
     };
@@ -494,6 +561,7 @@
       resetScreens();
       const dialog = document.getElementById("npc-dialog");
       document.getElementById("npc-name").innerText = name;
+      document.getElementById("npc-desc").innerText = npcData[name].desc;
       document.getElementById("npc-text").innerText = npcData[name].text;
       document.getElementById("npc-image").src = npcData[name].image;
       dialog.classList.remove("hidden");
