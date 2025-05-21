@@ -524,6 +524,26 @@
       .quest-item {
         width: 90%;
       }
+#inventory-grid {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  grid-template-rows: repeat(5, 60px);
+  gap: 5px;
+  margin: 20px auto;
+  width: 90%;
+  max-width: 800px;
+}
+
+.inventory-slot {
+  background-color: #222;
+  border: 1px solid #666;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ccc;
+  font-size: 0.9em;
+  padding: 5px;
+}
 
     }
   </style>
@@ -532,9 +552,10 @@
 
 <div id="inventory-screen" class="hidden">
   <h2>Инвентарь</h2>
-  <div id="inventory-list"></div>
+  <div id="inventory-grid" class="inventory-grid"></div>
   <button onclick="backToGame()">Назад</button>
 </div>
+
 
   <div id="menu-button" onclick="toggleMenu()"><span>☰</span></div>
   <div id="sidebar-menu" class="hidden">
@@ -918,18 +939,16 @@
 function showInventory() {
   resetScreens();
   const inventoryScreen = document.getElementById("inventory-screen");
-  const inventoryList = document.getElementById("inventory-list");
-  inventoryList.innerHTML = "";
+  const inventoryGrid = document.getElementById("inventory-grid");
+  inventoryGrid.innerHTML = "";
 
-  if (playerData.inventory.length === 0) {
-    inventoryList.innerHTML = '<p>Ваш инвентарь пуст.</p>';
-  } else {
-    playerData.inventory.forEach((item, index) => {
-      const itemDiv = document.createElement("div");
-      itemDiv.className = "quest-item";
-      itemDiv.innerText = item;
-      inventoryList.appendChild(itemDiv);
-    });
+  const totalSlots = 50;
+
+  for (let i = 0; i < totalSlots; i++) {
+    const slot = document.createElement("div");
+    slot.className = "inventory-slot";
+    slot.innerText = playerData.inventory[i] || "";
+    inventoryGrid.appendChild(slot);
   }
 
   inventoryScreen.classList.remove("hidden");
@@ -937,6 +956,7 @@ function showInventory() {
   document.getElementById("menu-button").classList.remove("hidden");
   document.getElementById("menu-button").classList.add("visible");
 }
+
 
 
     function showSkills() {
