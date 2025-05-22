@@ -1,9 +1,48 @@
-<!DOCTYPE html>
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Неоконченные сказания</title>
+  <title>Endless Adventure</title>
   <link href="https://fonts.googleapis.com/css2?family=Uncial+Antiqua&display=swap" rel="stylesheet">
   <style>
     body {
@@ -70,7 +109,7 @@
       font-family: 'Uncial Antiqua', serif;
       font-size: 2em;
       font-weight: 700;
-      color: #d9e4dd; /* Мягкий серебристый */
+      color: #d9e4dd;
       position: fixed;
       top: 40vh;
       width: 100%;
@@ -106,7 +145,7 @@
       overflow-wrap: break-word;
     }
 
-    #about-screen, #class-selection, #game-screen, #npc-dialog, #quests-screen {
+    #about-screen, #class-selection, #game-screen, #npc-dialog, #quests-screen, #inventory-screen {
       z-index: 5;
       transition: opacity 0.5s ease;
     }
@@ -157,15 +196,73 @@
       cursor: pointer;
       margin: 10px auto;
       width: 80%;
-      padding: 10px;
+      padding: 5px;
       border: 1px solid #666;
       background-color: #222;
-      transition: background-color 0.3s ease, border-color 0.3s ease;
+      transition: background-color 0.3s ease, border-color 0.3s ease, max-height 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      min-height: 70px;
+      box-sizing: border-box;
     }
 
     .class-option.selected {
       background-color: #333;
       border-color: #888;
+    }
+
+    .class-option:hover {
+      background-color: #333;
+    }
+
+    .class-name-row {
+      display: flex;
+      align-items: center;
+      height: 70px;
+    }
+
+    .class-option img {
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
+      margin: 5px 10px;
+    }
+
+    .class-name {
+      font-size: 1em;
+      font-weight: bold;
+      flex: 1;
+      text-align: left;
+      overflow-wrap: break-word;
+    }
+
+    .class-details {
+      max-height: 0;
+      overflow: hidden;
+      margin: 0 10px 10px 10px;
+      padding: 0 10px;
+      background-color: #333;
+      border: 1px solid #777;
+      font-size: 0.95em;
+      color: #ccc;
+      text-align: left;
+      transition: max-height 0.3s ease, opacity 0.3s ease, padding 0.3s ease;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .class-details:not(.hidden) {
+      max-height: 300px;
+      padding: 10px;
+      opacity: 1;
+    }
+
+    .class-details p {
+      margin: 5px 0;
+    }
+
+    .class-details strong {
+      color: #f0f0f0;
     }
 
     #extra-content {
@@ -452,6 +549,91 @@
       display: none;
     }
 
+    #inventory-screen {
+      padding: 20px;
+    }
+
+    #inventory-tabs {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    .tab-button {
+      background-color: #333;
+      border: 1px solid #666;
+      color: #f0f0f0;
+      font-size: 1.5em;
+      padding: 10px 20px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      margin: 0 5px;
+    }
+
+    .tab-button.active {
+      background-color: #555;
+      border-color: #888;
+    }
+
+    .tab-button:hover {
+      background-color: #444;
+    }
+
+    #inventory-list {
+      display: flex;
+      flex-direction: column;
+      width: 90%;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .inventory-item {
+      display: flex;
+      align-items: center;
+      height: 70px;
+      background-color: #222;
+      border: 1px solid #666;
+      margin-bottom: 5px;
+      box-sizing: border-box;
+    }
+
+    .inventory-item.empty {
+      background-color: #333;
+      border: 1px solid #555;
+    }
+
+    .inventory-item img {
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
+      margin: 5px 10px;
+    }
+
+    .inventory-item .item-text {
+      flex: 1;
+      text-align: left;
+      padding-right: 10px;
+    }
+
+    .inventory-item .item-name {
+      font-size: 1em;
+      font-weight: bold;
+      overflow-wrap: break-word;
+    }
+
+    .inventory-item .item-desc {
+      font-size: 0.8em;
+      color: #ccc;
+      overflow-wrap: break-word;
+      line-height: 1.2;
+    }
+
+    #inventory-empty {
+      font-size: 1em;
+      color: #ccc;
+      margin: 20px auto;
+    }
+
     @media (max-width: 600px) {
       #splash-title {
         font-size: 1.5em;
@@ -524,38 +706,85 @@
       .quest-item {
         width: 90%;
       }
-#inventory-grid {
-  display: grid;
-  grid-template-columns: repeat(10, 1fr);
-  grid-template-rows: repeat(5, 60px);
-  gap: 5px;
-  margin: 20px auto;
-  width: 90%;
-  max-width: 800px;
-}
 
-.inventory-slot {
-  background-color: #222;
-  border: 1px solid #666;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #ccc;
-  font-size: 0.9em;
-  padding: 5px;
-}
+      #inventory-tabs {
+        margin-bottom: 10px;
+      }
 
+      .tab-button {
+        font-size: 1.2em;
+        padding: 8px 15px;
+        margin: 0 3px;
+      }
+
+      #inventory-list {
+        width: 95%;
+        max-width: 400px;
+      }
+
+      .inventory-item {
+        height: 50px;
+        margin-bottom: 3px;
+      }
+
+      .inventory-item img {
+        width: 40px;
+        height: 40px;
+        margin: 5px 8px;
+      }
+
+      .inventory-item .item-name {
+        font-size: 0.9em;
+      }
+
+      .inventory-item .item-desc {
+        font-size: 0.7em;
+      }
+
+      .class-option {
+        min-height: 50px;
+        padding: 3px;
+      }
+
+      .class-name-row {
+        height: 50px;
+      }
+
+      .class-option img {
+        width: 40px;
+        height: 40px;
+        margin: 5px 8px;
+      }
+
+      .class-name {
+        font-size: 0.9em;
+      }
+
+      .class-details {
+        font-size: 0.85em;
+        padding: 0 8px;
+        margin: 0 8px 8px 8px;
+      }
+
+      .class-details:not(.hidden) {
+        padding: 8px;
+      }
     }
   </style>
 </head>
 <body>
-
-<div id="inventory-screen" class="hidden">
-  <h2>Инвентарь</h2>
-  <div id="inventory-grid" class="inventory-grid"></div>
-  <button onclick="backToGame()">Назад</button>
-</div>
-
+  <div id="inventory-screen" class="hidden">
+    <h2>Инвентарь</h2>
+    <div id="inventory-tabs">
+      <button class="tab-button" data-tab="weapons">⚔️</button>
+      <button class="tab-button" data-tab="armor">🛡️</button>
+      <button class="tab-button" data-tab="potions">🧪</button>
+      <button class="tab-button" data-tab="keyItems">🔑</button>
+    </div>
+    <div id="inventory-list"></div>
+    <p id="inventory-empty" class="hidden">Раздел пуст</p>
+    <button onclick="backToGame()">Назад</button>
+  </div>
 
   <div id="menu-button" onclick="toggleMenu()"><span>☰</span></div>
   <div id="sidebar-menu" class="hidden">
@@ -569,10 +798,10 @@
     Murmyak Games
     <img src="logo.png" alt="Murmyak Games Logo">
   </div>
-  <div id="splash-title" class="hidden">Endless<br>adventure</div>
+  <div id="splash-title" class="hidden">Endless Adventure</div>
 
   <div id="main-menu" class="hidden">
-    <h1>Endless adventure</h1>
+    <h1>Endless Adventure</h1>
     <div class="menu-button">
       <button onclick="newGame()">Новая игра</button>
     </div>
@@ -592,22 +821,37 @@
 
   <div id="class-selection" class="hidden">
     <h2>Выберите класс</h2>
-    <div class="class-option" onclick="toggleClassInfo('archer')">
-      <strong>Лучник</strong>
-      <div id="archer-info" class="hidden">
-        Мастер дальнего боя. Снаряжение: лук, кожаная броня, кольчужный капюшон.
+    <div class="class-option" data-class="archer" onclick="toggleClassInfo(this)">
+      <div class="class-name-row">
+        <img src="archer.png" alt="Следопыт">
+        <div class="class-name">Следопыт</div>
+      </div>
+      <div class="class-details hidden">
+        <p><strong>Описание:</strong> Искры глаз следят за каждым движением в чаще, а стрелы бьют без промаха.</p>
+        <p><strong>Особенность:</strong> Перемещается на 10% быстрее.</p>
+        <p><strong>Снаряжение:</strong> Лук, Кожаная броня, Кольчужный капюшон, Зелье здоровья, Походные сапоги.</p>
       </div>
     </div>
-    <div class="class-option" onclick="toggleClassInfo('warrior')">
-      <strong>Воин</strong>
-      <div id="warrior-info" class="hidden">
-        Сильный и выносливый. Снаряжение: меч, щит, стальная броня.
+    <div class="class-option" data-class="warrior" onclick="toggleClassInfo(this)">
+      <div class="class-name-row">
+        <img src="warrior.png" alt="Воин">
+        <div class="class-name">Воин</div>
+      </div>
+      <div class="class-details hidden">
+        <p><strong>Описание:</strong> Сильный и выносливый боец, готовый стоять до последнего.</p>
+        <p><strong>Особенность:</strong> Получает на 15% меньше урона.</p>
+        <p><strong>Снаряжение:</strong> Меч, Щит, Стальная броня, Зелье здоровья, Походные сапоги.</p>
       </div>
     </div>
-    <div class="class-option" onclick="toggleClassInfo('rogue')">
-      <strong>Плут</strong>
-      <div id="rogue-info" class="hidden">
-        Ловкий и скрытный. Снаряжение: кинжалы, плащ теней, маска.
+    <div class="class-option" data-class="rogue" onclick="toggleClassInfo(this)">
+      <div class="class-name-row">
+        <img src="rogue.png" alt="Разбойник">
+        <div class="class-name">Разбойник</div>
+      </div>
+      <div class="class-details hidden">
+        <p><strong>Описание:</strong> Тень, что крадётся в ночи, с клинком, готовым к удару.</p>
+        <p><strong>Особенность:</strong> Наносит на 20% больше урона при скрытной атаке.</p>
+        <p><strong>Снаряжение:</strong> Кинжалы, Плащ теней, Маска, Зелье здоровья, Походные сапоги.</p>
       </div>
     </div>
     <button onclick="selectClass()">Выбрать</button>
@@ -764,9 +1008,64 @@
       "Крепость": "Стены крепости помнят клятвы рыцарей..."
     };
 
+    // Иконки для предметов
+    const itemIcons = {
+      "Зелье здоровья": "healthpotion.png",
+      "Походные сапоги": "boots.png",
+      "Лук": "bow.png",
+      "Кожаная броня": "leatherarmor.png",
+      "Кольчужный капюшон": "chainhood.png",
+      "Меч": "sword.png",
+      "Щит": "shield.png",
+      "Стальная броня": "steelarmor.png",
+      "Кинжалы": "daggers.png",
+      "Плащ теней": "shadowcloak.png",
+      "Маска": "mask.png"
+    };
+
+    // Описания предметов
+    const itemDescriptions = {
+      "Зелье здоровья": "Восстанавливает 50 единиц здоровья при использовании.",
+      "Походные сапоги": "Увеличивают скорость передвижения на 10%.",
+      "Лук": "Оружие дальнего боя, наносит 15 урона.",
+      "Кожаная броня": "Лёгкая броня, добавляет 10 защиты.",
+      "Кольчужный капюшон": "Защищает голову, добавляет 5 защиты.",
+      "Меч": "Мощное оружие ближнего боя, наносит 20 урона.",
+      "Щит": "Блокирует 30% входящего урона.",
+      "Стальная броня": "Тяжёлая броня, добавляет 20 защиты.",
+      "Кинжалы": "Быстрое оружие, наносит 12 урона с шансом критического удара.",
+      "Плащ теней": "Увеличивает уклонение на 15%.",
+      "Маска": "Скрывает личность, повышает скрытность."
+    };
+
+    // Данные классов
+    const classData = {
+      archer: {
+        name: "Следопыт",
+        image: "archer.png",
+        desc: "Искры глаз следят за каждым движением в чаще, а стрелы бьют без промаха.",
+        feature: "Перемещается на 10% быстрее.",
+        equipment: ["Лук", "Кожаная броня", "Кольчужный капюшон", "Зелье здоровья", "Походные сапоги"]
+      },
+      warrior: {
+        name: "Воин",
+        image: "warrior.png",
+        desc: "Сильный и выносливый боец, готовый стоять до последнего.",
+        feature: "Получает на 15% меньше урона.",
+        equipment: ["Меч", "Щит", "Стальная броня", "Зелье здоровья", "Походные сапоги"]
+      },
+      rogue: {
+        name: "Разбойник",
+        image: "rogue.png",
+        desc: "Тень, что крадётся в ночи, с клинком, готовым к удару.",
+        feature: "Наносит на 20% больше урона при скрытной атаке.",
+        equipment: ["Кинжалы", "Плащ теней", "Маска", "Зелье здоровья", "Походные сапоги"]
+      }
+    };
+
     // Сброс всех экранов
     function resetScreens() {
-      document.querySelectorAll("#splash-dev, #splash-title, #main-menu, #about-screen, #class-selection, #game-screen, #travel-screen, #npc-dialog, #quests-screen")
+      document.querySelectorAll("#splash-dev, #splash-title, #main-menu, #about-screen, #class-selection, #game-screen, #travel-screen, #npc-dialog, #quests-screen, #inventory-screen")
         .forEach(el => {
           el.classList.remove("visible");
           el.classList.add("hidden");
@@ -936,28 +1235,66 @@
       alert("Раздел 'Об игроке' в разработке!");
     }
 
-function showInventory() {
-  resetScreens();
-  const inventoryScreen = document.getElementById("inventory-screen");
-  const inventoryGrid = document.getElementById("inventory-grid");
-  inventoryGrid.innerHTML = "";
+    function showInventory() {
+      resetScreens();
+      const inventoryScreen = document.getElementById("inventory-screen");
+      const inventoryList = document.getElementById("inventory-list");
+      const inventoryEmpty = document.getElementById("inventory-empty");
+      const tabs = document.querySelectorAll(".tab-button");
 
-  const totalSlots = 50;
+      // По умолчанию показываем раздел оружия
+      let currentTab = "weapons";
+      tabs.forEach(tab => {
+        tab.classList.remove("active");
+        if (tab.dataset.tab === currentTab) {
+          tab.classList.add("active");
+        }
+      });
 
-  for (let i = 0; i < totalSlots; i++) {
-    const slot = document.createElement("div");
-    slot.className = "inventory-slot";
-    slot.innerText = playerData.inventory[i] || "";
-    inventoryGrid.appendChild(slot);
-  }
+      function renderInventory(tab) {
+        inventoryList.innerHTML = "";
+        const items = playerData.inventory[tab] || [];
+        inventoryEmpty.classList.add("hidden");
 
-  inventoryScreen.classList.remove("hidden");
-  inventoryScreen.classList.add("visible");
-  document.getElementById("menu-button").classList.remove("hidden");
-  document.getElementById("menu-button").classList.add("visible");
-}
+        if (items.length === 0) {
+          inventoryEmpty.classList.remove("hidden");
+        } else {
+          for (let i = 0; i < 10; i++) {
+            const item = items[i];
+            const itemElement = document.createElement("div");
+            itemElement.className = "inventory-item" + (item ? "" : " empty");
+            if (item) {
+              itemElement.innerHTML = `
+                <img src="${itemIcons[item]}" alt="${item}">
+                <div class="item-text">
+                  <div class="item-name">${item}</div>
+                  <div class="item-desc">${itemDescriptions[item]}</div>
+                </div>
+              `;
+            }
+            inventoryList.appendChild(itemElement);
+          }
+        }
+      }
 
+      // Начальный рендеринг
+      renderInventory(currentTab);
 
+      // Обработчики вкладок
+      tabs.forEach(tab => {
+        tab.addEventListener("click", () => {
+          currentTab = tab.dataset.tab;
+          tabs.forEach(t => t.classList.remove("active"));
+          tab.classList.add("active");
+          renderInventory(currentTab);
+        });
+      });
+
+      inventoryScreen.classList.remove("hidden");
+      inventoryScreen.classList.add("visible");
+      document.getElementById("menu-button").classList.remove("hidden");
+      document.getElementById("menu-button").classList.add("visible");
+    }
 
     function showSkills() {
       alert("Раздел 'Умения' в разработке!");
@@ -988,13 +1325,17 @@ function showInventory() {
     }, 3000);
 
     // Состояние игры
-let playerData = {
-  class: null,
-  location: "Деревня",
-  quests: [],
-  inventory: []
-};
-
+    let playerData = {
+      class: null,
+      location: "Деревня",
+      quests: [],
+      inventory: {
+        weapons: [],
+        armor: [],
+        potions: [],
+        keyItems: []
+      }
+    };
 
     // Расстояния от Деревни
     const locationDistances = {
@@ -1035,26 +1376,39 @@ let playerData = {
     };
 
     // Классы
-    function toggleClassInfo(id) {
+    function toggleClassInfo(element) {
       const options = document.querySelectorAll(".class-option");
       options.forEach(opt => {
-        const info = opt.querySelector("div[id$='-info']");
+        const details = opt.querySelector(".class-details");
         opt.classList.remove("selected");
-        info.classList.add("hidden");
+        details.classList.add("hidden");
       });
-      const el = document.getElementById(id + "-info");
-      el.classList.toggle("hidden");
-      if (!el.classList.contains("hidden")) {
-        el.parentElement.classList.add("selected");
+      const details = element.querySelector(".class-details");
+      details.classList.toggle("hidden");
+      if (!details.classList.contains("hidden")) {
+        element.classList.add("selected");
       }
     }
 
     function newGame() {
-      playerData = { class: null, location: "Деревня", quests: [] };
+      playerData = {
+        class: null,
+        location: "Деревня",
+        quests: [],
+        inventory: {
+          weapons: [],
+          armor: [],
+          potions: [],
+          keyItems: []
+        }
+      };
       resetScreens();
       document.getElementById("class-selection").classList.remove("hidden");
       document.getElementById("class-selection").classList.add("visible");
-      document.querySelectorAll(".class-option").forEach(opt => opt.classList.remove("selected"));
+      document.querySelectorAll(".class-option").forEach(opt => {
+        opt.classList.remove("selected");
+        opt.querySelector(".class-details").classList.add("hidden");
+      });
     }
 
     function continueGame() {
@@ -1081,11 +1435,31 @@ let playerData = {
 
     function selectClass() {
       if (!playerData.class) {
-        const selected = ["archer", "warrior", "rogue"].find(id =>
-          !document.getElementById(id + "-info").classList.contains("hidden")
-        );
-        playerData.class = selected || "warrior";
+        const selectedOption = document.querySelector(".class-option .class-details:not(.hidden)");
+        const selectedClass = selectedOption
+          ? selectedOption.closest(".class-option").dataset.class
+          : "warrior";
+        playerData.class = selectedClass;
       }
+
+      // Добавляем начальные предметы
+      const classInfo = classData[playerData.class];
+      playerData.inventory.potions.push("Зелье здоровья");
+      playerData.inventory.keyItems.push("Походные сапоги");
+
+      if (playerData.class === "archer") {
+        playerData.inventory.weapons.push("Лук");
+        playerData.inventory.armor.push("Кожаная броня", "Кольчужный капюшон");
+      } else if (playerData.class === "warrior") {
+        playerData.inventory.weapons.push("Меч");
+        playerData.inventory.armor.push("Щит", "Стальная броня");
+      } else if (playerData.class === "rogue") {
+        playerData.inventory.weapons.push("Кинжалы");
+        playerData.inventory.armor.push("Плащ теней");
+        playerData.inventory.keyItems.push("Маска");
+      }
+
+      saveGame();
       resetScreens();
       startGame();
     }
