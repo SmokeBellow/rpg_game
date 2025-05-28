@@ -1,3 +1,7 @@
+console.log("script.js loaded");
+
+let currentInventoryTab = "weapons"; // по умолчанию оружие
+
 // Данные NPC
 const npcData = {
   "Староста Лем": {
@@ -44,6 +48,11 @@ const npcData = {
     text: "Кто-то из моих стражей что-то скрывает. Я вижу взгляды, слышу шёпоты. Мне нужен тот, кому я могу доверять. Помоги мне выяснить правду — пока не поздно.",
     desc: "Бывший лидер крепости, жаждущий вернуть её былую славу.",
     image: "Images/npc/commander.jpg"
+  },
+   "Торговец Гелрик": {
+    text: "У меня есть всё — от лечебных трав до трофеев пустыни! Погляди, не найдётся ли что тебе по вкусу.",
+    desc: "Старый проныра с тюками товаров и историями о далёких землях. Всегда найдет, что продать.",
+    image: "Images/npc/merchant.jpg"
   }
 };
 
@@ -53,7 +62,7 @@ const questData = {
     title: "Пропавший гонец",
     desc: "Найди вестника в лесу",
     condition: "Найти и вернуть гонца живым",
-    reward: "20 монет, +доверие деревни"
+    reward: "20 монет"
   },
   "Кузнец Бран": {
     title: "Угли для кузни",
@@ -65,19 +74,19 @@ const questData = {
     title: "Тропами зверя",
     desc: "Убей вурдалака в лесу",
     condition: "Победить вурдалака в лесу",
-    reward: "Охотничий плащ (+ловкость)"
+    reward: "Охотничий плащ"
   },
   "Рыбак Нор": {
     title: "Большая рыба",
     desc: "Поймай редкого сомавра",
     condition: "Поймать и принести сомавра",
-    reward: "Серебряный крючок (+удача в рыбалке)"
+    reward: "Серебряный крючок"
   },
   "Страж Ролан": {
     title: "Тихая башня",
     desc: "Проверь странные звуки ночью",
     condition: "Выследить и устранить нарушителя",
-    reward: "Доспех стража (+защита)"
+    reward: "Доспех стража"
   },
   "Старец Вейн": {
     title: "Пыль времён",
@@ -89,13 +98,13 @@ const questData = {
     title: "Следы теней",
     desc: "Расследуй исчезновения на дороге",
     condition: "Победить теневого врага на тракте",
-    reward: "Плащ теней (+уклонение)"
+    reward: "Плащ теней"
   },
   "Комендант Рейн": {
     title: "Запах мятежа",
     desc: "Раскрой заговор в крепости",
     condition: "Выявить и разоблачить заговорщиков",
-    reward: "Орден коменданта (+влияние)"
+    reward: "Орден коменданта"
   }
 };
 
@@ -128,58 +137,61 @@ const itemIcons = {
   "Меч": "Images/items/sword.png",
   "Щит": "Images/items/shield.png",
   "Стальная броня": "Images/items/steelarmor.png",
-  "Кинжалы": "Images/items/daggers.png",
-  "Плащ теней": "Images/items/shadowcloak.png",
-  "Маска": "Images/items/mask.png"
+  "Кинжал": "Images/items/daggers.png",
+  "Плащ": "Images/items/shadowcloak.png",
+  "Маска": "Images/items/mask.png",
+  "Золото": "Images/items/gold.png",
 };
 
 // Описания предметов
 const itemDescriptions = {
   "Зелье здоровья": "Восстанавливает 50 единиц здоровья при использовании.",
   "Походные сапоги": "Увеличивают скорость передвижения на 10%.",
-  "Лук": "Оружие дальнего боя, наносит 15 урона.",
-  "Кожаная броня": "Лёгкая броня, добавляет 10 защиты.",
-  "Кольчужный капюшон": "Защищает голову, добавляет 5 защиты.",
-  "Меч": "Мощное оружие ближнего боя, наносит 20 урона.",
-  "Щит": "Блокирует 30% входящего урона.",
-  "Стальная броня": "Тяжёлая броня, добавляет 20 защиты.",
-  "Кинжалы": "Быстрое оружие, наносит 12 урона с шансом критического удара.",
-  "Плащ теней": "Увеличивает уклонение на 15%.",
-  "Маска": "Скрывает личность, повышает скрытность."
+  "Лук": "Оружие дальнего боя, наносит 15 урона. Только для следопыта.",
+  "Меч": "Мощное оружие ближнего боя, наносит 20 урона. Только для воина.",
+  "Кинжал": "Быстрое оружие, наносит 12 урона с шансом критического удара. Только для разбойника.",
+  "Щит": "Блокирует 30% входящего урона. Только для воина.",
+  "Кожаная броня": "Лёгкая броня, добавляет 10 защиты. Только для следопыта.",
+  "Кольчужный капюшон": "Защищает голову, добавляет 5 защиты. Только для следопыта.",
+  "Стальная броня": "Тяжёлая броня, добавляет 20 защиты. Только для воина.",
+  "Плащ": "Лёгкий плащ, улучшающий манёвренность. Только для разбойника.",
+  "Маска": "Скрывает личность, повышает скрытность. Только для разбойника.",
+  "Золото": "Монеты, используемые для покупок."
 };
 
 // Данные классов
 const classData = {
   archer: {
     name: "Следопыт",
-    image: "Images/npc/archer.png",
+    image: "Images/npc/archer.jpg",
     desc: "Искры глаз следят за каждым движением в чаще, а стрелы бьют без промаха.",
     feature: "Перемещается на 10% быстрее.",
-    equipment: ["Лук", "Кожаная броня", "Кольчужный капюшон", "Зелье здоровья", "Походные сапоги"]
+    equipment: ["Лук", "Кожаная броня", "Кольчужный капюшон"]
   },
   warrior: {
     name: "Воин",
-    image: "Images/npc/warrior.png",
+    image: "Images/npc/warrior.jpg",
     desc: "Сильный и выносливый боец, готовый стоять до последнего.",
     feature: "Получает на 15% меньше урона.",
-    equipment: ["Меч", "Щит", "Стальная броня", "Зелье здоровья", "Походные сапоги"]
+    equipment: ["Меч", "Щит", "Стальная броня"]
   },
   rogue: {
     name: "Разбойник",
-    image: "Images/npc/rogue.png",
+    image: "Images/npc/rogue.jpg",
     desc: "Тень, что крадётся в ночи, с клинком, готовым к удару.",
     feature: "Наносит на 20% больше урона при скрытной атаке.",
-    equipment: ["Кинжалы", "Плащ теней", "Маска", "Зелье здоровья", "Походные сапоги"]
+    equipment: ["Кинжалы", "Плащ", "Маска"]
   }
 };
 
 // Сброс всех экранов
 function resetScreens() {
-  document.querySelectorAll("#splash-dev, #splash-title, #main-menu, #about-screen, #class-selection, #game-screen, #travel-screen, #npc-dialog, #quests-screen, #inventory-screen")
-    .forEach(el => {
-      el.classList.remove("visible");
-      el.classList.add("hidden");
-    });
+  document.querySelectorAll(
+    "#splash-dev, #splash-title, #main-menu, #about-screen, #class-selection, #game-screen, #travel-screen, #npc-dialog, #character-screen, #quests-screen, #inventory-screen"
+  ).forEach(el => {
+    el.classList.remove("visible");
+    el.classList.add("hidden");
+  });
   document.getElementById("sidebar-menu").classList.remove("open");
   document.getElementById("menu-button").classList.add("hidden");
 }
@@ -215,6 +227,8 @@ function toggleMenu() {
   }
 }
 
+document.getElementById("sidebar-close").addEventListener("click", toggleMenu);
+
 // Экран разговора с NPC
 let currentNpc = null;
 
@@ -230,9 +244,29 @@ function showNpcDialog(name) {
   const questButton = document.getElementById("npc-quest");
   const questLimitMsg = document.getElementById("quest-limit-msg");
 
+  // Удаляем старые кнопки: кастомные и кнопки назад
+  dialog.querySelectorAll(".back-button").forEach(btn => btn.remove());
+
   if (name === "Мудрая жаба") {
     questButton.classList.add("hidden");
     questLimitMsg.classList.add("hidden");
+
+  } else if (name === "Торговец Гелрик") {
+    questButton.classList.add("hidden");
+    questLimitMsg.classList.add("hidden");
+
+    const buyBtn = document.createElement("button");
+    buyBtn.innerText = "Купить";
+    buyBtn.classList.add("common-button");
+    buyBtn.onclick = () => openBuyScreen();
+    dialog.appendChild(buyBtn);
+
+    const sellBtn = document.createElement("button");
+    sellBtn.innerText = "Продать";
+    sellBtn.classList.add("common-button");
+    sellBtn.onclick = () => openSellScreen();
+    dialog.appendChild(sellBtn);
+
   } else {
     const alreadyTaken = playerData.quests.find(q => q.npc === name);
     const tooManyQuests = playerData.quests.length >= 4;
@@ -253,6 +287,128 @@ function showNpcDialog(name) {
 
   dialog.classList.remove("hidden");
   dialog.classList.add("visible");
+}
+
+function styleTradeButton(btn) {
+  btn.className = "trade-button common-button";
+}
+
+const merchantInventory = [
+  { name: "Зелье здоровья", price: 20 },
+  { name: "Укрепленные сапоги", price: 50 },
+  { name: "Хороший плащ", price: 80 }
+];
+
+function openBuyScreen() {
+  const container = document.getElementById("trade-items");
+  const title = document.getElementById("trade-title");
+  title.innerText = "Покупка предметов";
+  container.innerHTML = "";
+
+  merchantInventory.forEach(item => {
+    const el = document.createElement("div");
+    el.className = "trade-item";
+    el.innerHTML = `
+      <div style="display: flex; align-items: center;">
+        <img src="${itemIcons[item.name] || 'Images/items/default.png'}" alt="${item.name}" class="item-icon">
+        <span>${item.name}</span>
+      </div>
+      <button class="trade-button" onclick="buyItem('${item.name}', ${item.price})">
+        <img src="${itemIcons['Золото']}" alt="Золото" style="width: 20px; height: 20px;">
+        <span>${item.price}</span>
+      </button>
+    `;
+    const tradeButton = el.querySelector(".trade-button");
+    styleTradeButton(tradeButton);
+    container.appendChild(el);
+  });
+
+  document.getElementById("trade-screen").classList.remove("hidden");
+}
+
+function buyItem(itemName, price) {
+  const gold = playerData.inventory.keyItems.filter(i => i === "Золото").length;
+  if (gold < price) {
+    alert("Недостаточно золота!");
+    return;
+  }
+
+  for (let i = 0; i < price; i++) {
+    const index = playerData.inventory.keyItems.indexOf("Золото");
+    if (index !== -1) playerData.inventory.keyItems.splice(index, 1);
+  }
+
+  if (itemName.includes("сапоги") || itemName.includes("броня")) {
+    playerData.inventory.armor.push(itemName);
+  } else if (itemName.includes("Зелье")) {
+    playerData.inventory.potions.push(itemName);
+  } else {
+    playerData.inventory.weapons.push(itemName);
+  }
+
+  alert(`Вы купили ${itemName}`);
+  saveGame();
+}
+
+function openSellScreen() {
+  const container = document.getElementById("trade-items");
+  const title = document.getElementById("trade-title");
+  title.innerText = "Продажа предметов";
+  container.innerHTML = "";
+
+  const allItems = [
+    ...playerData.inventory.weapons,
+    ...playerData.inventory.armor,
+    ...playerData.inventory.potions
+  ];
+
+  if (allItems.length === 0) {
+    container.innerHTML = "<p>У вас нет ничего на продажу.</p>";
+    return;
+  }
+
+  allItems.forEach((item, index) => {
+    const el = document.createElement("div");
+    el.className = "trade-item";
+    el.innerHTML = `
+      <div style="display: flex; align-items: center;">
+        <img src="${itemIcons[item] || 'Images/items/default.png'}" alt="${item}" class="item-icon">
+        <span>${item}</span>
+      </div>
+      <button class="trade-button" onclick="sellItem('${item}', ${index})">
+        <img src="${itemIcons['Золото']}" alt="Золото" style="width: 20px; height: 20px;">
+        <span>10</span>
+      </button>
+    `;
+    const tradeButton = el.querySelector(".trade-button");
+    styleTradeButton(tradeButton);
+    container.appendChild(el);
+  });
+
+  document.getElementById("trade-screen").classList.remove("hidden");
+}
+
+function sellItem(itemName, index) {
+  const sections = ["weapons", "armor", "potions"];
+  for (let section of sections) {
+    const i = playerData.inventory[section].indexOf(itemName);
+    if (i !== -1) {
+      playerData.inventory[section].splice(i, 1);
+      break;
+    }
+  }
+
+  for (let i = 0; i < 10; i++) {
+    playerData.inventory.keyItems.push("Золото");
+  }
+
+  alert(`Вы продали ${itemName} за 10 золота`);
+  saveGame();
+  openSellScreen();
+}
+
+function closeTrade() {
+  document.getElementById("trade-screen").classList.add("hidden");
 }
 
 function closeNpcDialog() {
@@ -276,7 +432,24 @@ function takeQuest() {
         condition: quest.condition,
         reward: quest.reward
       });
-      saveGame();
+      gainXp(150);
+    }
+    closeNpcDialog();
+  }
+}
+
+function takeQuest() {
+  if (currentNpc && questData[currentNpc]) {
+    const quest = questData[currentNpc];
+    if (!playerData.quests.find(q => q.npc === currentNpc) && playerData.quests.length < 4) {
+      playerData.quests.push({
+        npc: currentNpc,
+        title: quest.title,
+        desc: quest.desc,
+        condition: quest.condition,
+        reward: quest.reward
+      });
+      gainXp(50);
     }
     closeNpcDialog();
   }
@@ -336,24 +509,152 @@ function backToGame() {
   document.getElementById("game-screen").classList.add("visible");
   document.getElementById("menu-button").classList.remove("hidden");
   document.getElementById("menu-button").classList.add("visible");
+  document.getElementById("trade-screen").classList.add("hidden");
   document.removeEventListener("click", closeQuestDetailsOnOutsideClick);
   updateLocation();
 }
 
-// Заглушки для других кнопок меню
-function showAboutCharacter() {
-  alert("Раздел 'Об игроке' в разработке!");
+// Экипировка предметов
+function equipItem(item, itemType) {
+  if (itemType === "potion") {
+    alert("Зелья нельзя экипировать!");
+    return;
+  }
+
+  let inventorySection;
+  if (itemType === "weapon" || itemType === "twohanded") {
+    inventorySection = "weapons";
+  } else if (itemType === "armor" || itemType === "helmet" || itemType === "boots") {
+    inventorySection = "armor";
+  } else {
+    inventorySection = "keyItems";
+  }
+
+  const itemIndex = playerData.inventory[inventorySection].indexOf(item);
+  if (itemIndex !== -1) {
+    playerData.inventory[inventorySection].splice(itemIndex, 1);
+  } else {
+    console.error(`Предмет ${item} не найден в инвентаре ${inventorySection}`);
+    return;
+  }
+
+  // Ограничения по классу
+  const cls = playerData.class;
+  const restrictedItems = {
+    "Лук": "archer",
+    "Меч": "warrior",
+    "Щит": "warrior",
+    "Кинжал": "rogue",
+    "Кожаная броня": "archer",
+    "Кольчужный капюшон": "archer",
+    "Стальная броня": "warrior",
+    "Плащ": "rogue",
+    "Маска": "rogue"
+  };
+  if (restrictedItems[item] && restrictedItems[item] !== cls) {
+    alert("Этот предмет может использовать только выбранный класс.");
+    playerData.inventory[inventorySection].push(item);
+    return;
+  }
+
+  if (itemType === "twohanded") {
+    if (playerData.equipment.weapon1) playerData.inventory.weapons.push(playerData.equipment.weapon1);
+    if (playerData.equipment.weapon2 && playerData.equipment.weapon2 !== "Лук") {
+      playerData.inventory.weapons.push(playerData.equipment.weapon2);
+    }
+    playerData.equipment.weapon1 = item;
+    playerData.equipment.weapon2 = item;
+  } else if (itemType === "weapon") {
+    if (item === "Щит") {
+      if (playerData.equipment.weapon2) {
+        playerData.inventory.weapons.push(playerData.equipment.weapon2);
+      }
+      playerData.equipment.weapon2 = item;
+    } else {
+      if (!playerData.equipment.weapon1) {
+        playerData.equipment.weapon1 = item;
+      } else if (!playerData.equipment.weapon2) {
+        playerData.equipment.weapon2 = item;
+      } else {
+        playerData.inventory.weapons.push(playerData.equipment.weapon1);
+        playerData.equipment.weapon1 = item;
+      }
+    }
+
+    if (playerData.equipment.weapon1 === "Лук" && item !== "Лук") {
+      playerData.equipment.weapon1 = null;
+      playerData.equipment.weapon2 = null;
+      playerData.equipment.weapon1 = item;
+    }
+    if (playerData.equipment.weapon2 === "Лук" && item !== "Лук") {
+      playerData.equipment.weapon2 = null;
+    }
+  } else {
+    const equipSlot = itemType === "helmet" ? "helmet"
+                      : itemType === "armor" ? "armor"
+                      : itemType === "boots" ? "boots"
+                      : "amulet";
+    if (playerData.equipment[equipSlot]) {
+      playerData.inventory[inventorySection].push(playerData.equipment[equipSlot]);
+    }
+    playerData.equipment[equipSlot] = item;
+  }
+
+  recalculateModifiers();
+  saveGame();
+  showInventory(currentInventoryTab);
+
+  if (!document.getElementById("character-screen").classList.contains("hidden")) {
+    showAboutCharacter();
+  }
 }
 
-function showInventory() {
+// Снятие экипировки
+function unequipItem(slot) {
+  const item = playerData.equipment[slot];
+  if (!item) return;
+
+  const itemType = getItemType(item);
+  let inventorySection;
+  if (itemType === "weapon" || itemType === "twohanded") {
+    inventorySection = "weapons";
+  } else if (itemType === "armor" || itemType === "helmet" || itemType === "boots") {
+    inventorySection = "armor";
+  } else {
+    inventorySection = "keyItems";
+  }
+
+  if (itemType === "twohanded") {
+    playerData.inventory[inventorySection].push(item);
+    playerData.equipment.weapon1 = null;
+    playerData.equipment.weapon2 = null;
+  } else if (slot === "weapon1" || slot === "weapon2") {
+    playerData.inventory[inventorySection].push(item);
+    playerData.equipment[slot] = null;
+    if (item === "Лук") {
+      playerData.equipment.weapon1 = null;
+      playerData.equipment.weapon2 = null;
+    }
+  } else {
+    playerData.inventory[inventorySection].push(item);
+    playerData.equipment[slot] = null;
+  }
+
+  recalculateModifiers();
+  saveGame();
+  showAboutCharacter();
+}
+
+// Экран инвентаря
+function showInventory(tabToShow) {
   resetScreens();
   const inventoryScreen = document.getElementById("inventory-screen");
   const inventoryList = document.getElementById("inventory-list");
   const inventoryEmpty = document.getElementById("inventory-empty");
   const tabs = document.querySelectorAll(".tab-button");
 
-  // По умолчанию показываем раздел оружия
-  let currentTab = "weapons";
+  if (tabToShow) currentInventoryTab = tabToShow;
+  let currentTab = currentInventoryTab || "weapons";
   tabs.forEach(tab => {
     tab.classList.remove("active");
     if (tab.dataset.tab === currentTab) {
@@ -363,41 +664,64 @@ function showInventory() {
 
   function renderInventory(tab) {
     inventoryList.innerHTML = "";
-    const items = playerData.inventory[tab] || [];
+    const rawItems = playerData.inventory[tab] || [];
     inventoryEmpty.classList.add("hidden");
 
-    if (items.length === 0) {
+    if (rawItems.length === 0) {
       inventoryEmpty.classList.remove("hidden");
     } else {
-      for (let i = 0; i < 10; i++) {
-        const item = items[i];
+      const itemMap = {};
+      rawItems.forEach(item => {
+        itemMap[item] = (itemMap[item] || 0) + 1;
+      });
+
+      const items = Object.entries(itemMap);
+      items.forEach(([item, count]) => {
+        const itemType = getItemType(item);
         const itemElement = document.createElement("div");
-        itemElement.className = "inventory-item" + (item ? "" : " empty");
-        if (item) {
-          itemElement.innerHTML = `
-            <img src="${itemIcons[item]}" alt="${item}">
-            <div class="item-text">
-              <div class="item-name">${item}</div>
-              <div class="item-desc">${itemDescriptions[item]}</div>
-            </div>
-          `;
-        }
+        itemElement.className = "inventory-item";
+        itemElement.innerHTML = `
+          <img src="${itemIcons[item]}" alt="${item}">
+          <div class="item-text">
+            <div class="item-name">${item} ${count > 1 ? `×${count}` : ""}</div>
+            <div class="item-desc">${itemDescriptions[item]}</div>
+          </div>
+          ${itemType !== "potion" && item !== "Золото" ? `<button class="common-button" onclick="equipItem('${item}', '${itemType}')">Надеть</button>` : ""}
+        `;
         inventoryList.appendChild(itemElement);
-      }
+      });
     }
   }
 
-  // Начальный рендеринг
   renderInventory(currentTab);
 
-  // Обработчики вкладок
+  let keyTabClickCount = 0;
+  let keyTabClickTimer = null;
+
   tabs.forEach(tab => {
-    tab.addEventListener("click", () => {
-      currentTab = tab.dataset.tab;
+    tab.onclick = () => {
+      const selectedTab = tab.dataset.tab;
+      currentInventoryTab = selectedTab;
       tabs.forEach(t => t.classList.remove("active"));
       tab.classList.add("active");
-      renderInventory(currentTab);
-    });
+      renderInventory(currentInventoryTab);
+
+      if (selectedTab === "keyItems") {
+        keyTabClickCount++;
+        if (keyTabClickCount === 5) {
+          gainXp(150);
+          alert("💡 Чит-код активирован: +150 XP!");
+          keyTabClickCount = 0;
+        }
+
+        clearTimeout(keyTabClickTimer);
+        keyTabClickTimer = setTimeout(() => {
+          keyTabClickCount = 0;
+        }, 3000);
+      } else {
+        keyTabClickCount = 0;
+      }
+    };
   });
 
   inventoryScreen.classList.remove("hidden");
@@ -438,12 +762,33 @@ setTimeout(() => {
 let playerData = {
   class: null,
   location: "Деревня",
+  level: 1,
+  xp: 0,
   quests: [],
   inventory: {
     weapons: [],
     armor: [],
     potions: [],
-    keyItems: []
+    keyItems: ["Золото"]
+  },
+  equipment: {
+    weapon1: null,
+    weapon2: null,
+    helmet: null,
+    armor: null,
+    boots: null,
+    amulet: null
+  },
+  stats: {
+    strength: 5,
+    agility: 5,
+    endurance: 5,
+    luck: 5
+  },
+  modifiers: {
+    speedFactor: 1.0,
+    damageReduction: 1.0,
+    damageBoost: 1.0
   }
 };
 
@@ -470,23 +815,24 @@ const locationDistances = {
 const locationAccusative = {
   "Деревня": "Деревню",
   "Лес": "Лес",
-  "Река": "Реку",
+  "Река": "к Реке",
   "Горы": "Горы",
-  "Поляна": "Поляну",
+  "Поляна": "к Поляне",
   "Пещера": "Пещеру",
   "Развалины": "Развалины",
   "Башня": "Башню",
   "Храм": "Храм",
-  "Портал": "Портал",
-  "Озеро": "Озеро",
-  "Болото": "Болото",
+  "Портал": "к Порталу",
+  "Озеро": "к Озеру",
+  "Болото": "к Болотам",
   "Каньон": "Каньон",
-  "Равнина": "Равнину",
+  "Равнина": "к Равнине",
   "Крепость": "Крепость"
 };
 
 // Классы
 function toggleClassInfo(element) {
+  console.log("toggleClassInfo called");
   const options = document.querySelectorAll(".class-option");
   options.forEach(opt => {
     const details = opt.querySelector(".class-details");
@@ -510,6 +856,14 @@ function newGame() {
       armor: [],
       potions: [],
       keyItems: []
+    },
+    equipment: {
+      weapon1: null,
+      weapon2: null,
+      helmet: null,
+      armor: null,
+      boots: null,
+      amulet: null
     }
   };
   resetScreens();
@@ -552,22 +906,26 @@ function selectClass() {
     playerData.class = selectedClass;
   }
 
-  // Добавляем начальные предметы
-  const classInfo = classData[playerData.class];
-  playerData.inventory.potions.push("Зелье здоровья");
-  playerData.inventory.keyItems.push("Походные сапоги");
-
   if (playerData.class === "archer") {
+    playerData.stats = { strength: 4, agility: 7, endurance: 5, luck: 5 };
+    playerData.modifiers = { speedFactor: 0.9, damageReduction: 1.0, damageBoost: 1.0 };
     playerData.inventory.weapons.push("Лук");
     playerData.inventory.armor.push("Кожаная броня", "Кольчужный капюшон");
   } else if (playerData.class === "warrior") {
-    playerData.inventory.weapons.push("Меч");
-    playerData.inventory.armor.push("Щит", "Стальная броня");
+    playerData.stats = { strength: 7, agility: 4, endurance: 7, luck: 4 };
+    playerData.modifiers = { speedFactor: 1.0, damageReduction: 0.9, damageBoost: 1.0 };
+    playerData.inventory.weapons.push("Меч", "Щит");
+    playerData.inventory.armor.push("Стальная броня");
   } else if (playerData.class === "rogue") {
-    playerData.inventory.weapons.push("Кинжалы");
-    playerData.inventory.armor.push("Плащ теней");
-    playerData.inventory.keyItems.push("Маска");
+    playerData.stats = { strength: 5, agility: 7, endurance: 4, luck: 6 };
+    playerData.modifiers = { speedFactor: 1.0, damageReduction: 1.0, damageBoost: 1.1 };
+    playerData.inventory.weapons.push("Кинжал", "Кинжал");
+    playerData.inventory.armor.push("Плащ", "Маска");
   }
+
+  playerData.inventory.potions.push("Зелье здоровья");
+  playerData.inventory.armor.push("Походные сапоги");
+  playerData.inventory.keyItems.push("Золото", "Золото", "Золото", "Золото", "Золото");
 
   saveGame();
   resetScreens();
@@ -587,196 +945,248 @@ function saveGame() {
   localStorage.setItem("mygame-save", JSON.stringify(playerData));
 }
 
-function showTravelScreen(targetLocation, duration) {
-  resetScreens();
-  const travelScreen = document.getElementById("travel-screen");
-  const travelTimer = document.getElementById("travel-timer");
-  const travelText = document.getElementById("travel-text");
-  travelScreen.classList.remove("hidden");
-  travelScreen.classList.add("visible");
-  let timeLeft = Math.ceil(duration / 1000);
-  travelTimer.innerText = `Вы идёте в ${locationAccusative[targetLocation]}... ${timeLeft} сек`;
-  travelText.innerText = travelTexts[targetLocation] || "Путь манит вперёд...";
-
-  const interval = setInterval(() => {
-    timeLeft--;
-    if (timeLeft > 0) {
-      travelTimer.innerText = `Вы идёте в ${locationAccusative[targetLocation]}... ${timeLeft} сек`;
-    } else {
-      clearInterval(interval);
-      playerData.location = targetLocation;
-      saveGame();
-      resetScreens();
-      document.getElementById("game-screen").classList.remove("hidden");
-      document.getElementById("game-screen").classList.add("visible");
-      document.getElementById("menu-button").classList.remove("hidden");
-      document.getElementById("menu-button").classList.add("visible");
-      updateLocation();
-    }
-  }, 1000);
-}
-
-// Локации
-const locations = {
-  "Деревня": {
-    desc: "Тихая деревня, окружённая старыми дубами. Каменные дома хранят истории о древних героях, а в таверне шепчутся о проклятых землях.",
-    paths: ["Лес", "Река"],
-    characters: ["Староста Лем", "Кузнец Бран"],
-    monsters: []
-  },
-  "Лес": {
-    desc: "Тёмный лес, где ветви сплетаются в узоры. Туман скрывает тропы, а шорохи намекают на присутствие духов.",
-    paths: ["Деревня", "Горы", "Поляна"],
-    characters: ["Охотница Элира"],
-    monsters: ["Древесный ужас", "Тенелис"]
-  },
-  "Река": {
-    desc: "Река с ледяной водой, чьи волны поют о забытых богах. На берегу видны следы древних алтарей.",
-    paths: ["Деревня", "Пещера", "Озеро"],
-    characters: ["Рыбак Нор"],
-    monsters: ["Водяная тварь"]
-  },
-  "Горы": {
-    desc: "Суровые горы, чьи вершины касаются звёзд. Скалы хранят эхо битв давно ушедших времён.",
-    paths: ["Лес", "Развалины", "Каньон"],
-    characters: [],
-    monsters: ["Горный голем"]
-  },
-  "Поляна": {
-    desc: "Лунная поляна, где свет звёзд создаёт магические узоры. Здесь время замирает, а духи шепчут пророчества.",
-    paths: ["Лес", "Башня"],
-    characters: [],
-    monsters: []
-  },
-  "Пещера": {
-    desc: "Мрачная пещера, где сталактиты блестят, как клыки. В глубине слышны стоны заточённых теней.",
-    paths: ["Река", "Развалины", "Болото"],
-    characters: [],
-    monsters: ["Слизень", "Пещерный паук"]
-  },
-  "Развалины": {
-    desc: "Останки древнего города, где ветер несёт отголоски былой славы. Камни хранят следы магических рун.",
-    paths: ["Горы", "Пещера", "Храм"],
-    characters: [],
-    monsters: ["Призрак легиона"]
-  },
-  "Башня": {
-    desc: "Одинокая башня, окружённая вихрями эфира. Её стены хранят тайны последнего мага.",
-    paths: ["Поляна", "Храм"],
-    characters: ["Страж Ролан"],
-    monsters: []
-  },
-  "Храм": {
-    desc: "Храм, чьи колонны покрыты мхом. Внутри горит вечный огонь, охраняемый невидимыми стражами.",
-    paths: ["Башня", "Развалины", "Портал", "Крепость"],
-    characters: [],
-    monsters: ["Служитель Тени"]
-  },
-  "Портал": {
-    desc: "Круг камней, излучающий неземной свет. Портал манит в иные миры, но его стражи не терпят слабых.",
-    paths: ["Храм"],
-    characters: [],
-    monsters: ["Страж Бездны"]
-  },
-  "Озеро": {
-    desc: "Спокойное озеро, чья гладь отражает звёзды. В глубинах таятся древние реликвии и их хранители.",
-    paths: ["Река", "Болото"],
-    characters: ["Старец Вейн"],
-    monsters: ["Озёрный дух"]
-  },
-  "Болото": {
-    desc: "Гнилое болото, где тени танцуют в тумане. Трясина скрывает кости тех, кто искал запретные сокровища.",
-    paths: ["Озеро", "Пещера"],
-    characters: ["Мудрая жаба"],
-    monsters: ["Болотный призрак", "Гнилец"]
-  },
-  "Каньон": {
-    desc: "Красный каньон, высеченный ветрами веков. Его стены покрыты знаками древних племён.",
-    paths: ["Горы", "Равнина"],
-    characters: ["Скиталец Кайр"],
-    monsters: ["Песчаный ящер"]
-  },
-  "Равнина": {
-    desc: "Бескрайняя равнина, где травы шепчут о забытых битвах. Вдалеке виднеются силуэты древних курганов.",
-    paths: ["Каньон", "Крепость"],
-    characters: [],
-    monsters: ["Степной волк"]
-  },
-  "Крепость": {
-    desc: "Полуразрушенная крепость, чьи башни всё ещё стоят. В её залах звучат отголоски рыцарских клятв.",
-    paths: ["Равнина", "Храм"],
-    characters: ["Комендант Рейн"],
-    monsters: ["Оживший доспех"]
-  }
-};
-
 function updateLocation() {
-  const loc = playerData.location;
-  const data = locations[loc];
-  document.getElementById("location-name").innerText = loc;
-  document.getElementById("location-desc").innerText = data.desc;
+  const locationData = {
+    "Деревня": {
+      desc: "Маленькая деревня, окружённая лесами и рекой. Здесь всё дышит покоем и уютом.",
+      characters: ["Староста Лем", "Кузнец Бран", "Охотница Элира", "Рыбак Нор"],
+      paths: ["Лес", "Река"]
+    },
+    "Лес": {
+      desc: "Густой лес, полный теней и шорохов. Где-то вдали слышен вой.",
+      characters: ["Охотница Элира"],
+      paths: ["Деревня", "Поляна", "Пещера"]
+    },
+    "Река": {
+      desc: "Спокойная река, текущая среди камней. Вода искрится под лучами солнца.",
+      characters: ["Рыбак Нор"],
+      paths: ["Деревня", "Озеро"]
+    },
+    "Горы": {
+      desc: "Скалистые пики, где ветер играет с облаками.",
+      characters: [],
+      paths: ["Пещера", "Равнина"]
+    },
+    "Поляна": {
+      desc: "Открытое пространство, усыпанное цветами и освещённое солнцем.",
+      characters: [],
+      paths: ["Лес", "Храм"]
+    },
+    "Пещера": {
+      desc: "Тёмная и холодная пещера, полная эха и неизвестности.",
+      characters: [],
+      paths: ["Лес", "Горы"]
+    },
+    "Развалины": {
+      desc: "Остатки древнего города, скрытые временем и мхом.",
+      characters: ["Старец Вейн"],
+      paths: ["Храм", "Болото"]
+    },
+    "Башня": {
+      desc: "Одинокая башня, возвышающаяся над равниной.",
+      characters: ["Страж Ролан"],
+      paths: ["Равнина", "Каньон"]
+    },
+    "Храм": {
+      desc: "Древний храм, где светится вечный огонь.",
+      characters: [],
+      paths: ["Поляна", "Развалины", "Портал"]
+    },
+    "Портал": {
+      desc: "Таинственный портал, ведущий в иные миры.",
+      characters: [],
+      paths: ["Храм"]
+    },
+    "Озеро": {
+      desc: "Глубокое озеро с прозрачной водой и загадочной тишиной.",
+      characters: ["Старец Вейн"],
+      paths: ["Река", "Болото"]
+    },
+    "Болото": {
+      desc: "Туманное болото, где каждый шаг может быть последним.",
+      characters: ["Скиталец Кайр"],
+      paths: ["Озеро", "Развалины"]
+    },
+    "Каньон": {
+      desc: "Узкий каньон с красными скалами и эхом прошлого.",
+      characters: ["Скиталец Кайр"],
+      paths: ["Башня", "Крепость"]
+    },
+    "Равнина": {
+      desc: "Бесконечная равнина, где ветер колышет травы.",
+      characters: [],
+      paths: ["Горы", "Башня"]
+    },
+    "Крепость": {
+      desc: "Могучая крепость, хранящая тайны прошлого.",
+      characters: ["Комендант Рейн"],
+      paths: ["Каньон"]
+    }
+  };
 
-  const buttons = document.getElementById("location-buttons");
-  buttons.innerHTML = "";
+  const locationName = document.getElementById("location-name");
+  const locationDesc = document.getElementById("location-desc");
+  const locationButtons = document.getElementById("location-buttons");
+  const extraContent = document.getElementById("extra-content");
 
-  data.paths.forEach(path => {
+  locationName.innerText = playerData.location;
+  locationDesc.innerText = locationData[playerData.location].desc;
+  locationButtons.innerHTML = "";
+  extraContent.innerHTML = "";
+
+  locationData[playerData.location].paths.forEach(path => {
     const btn = document.createElement("button");
     btn.innerText = path;
+    btn.className = "common-button"; // Используем общий стиль
     btn.onclick = () => {
       const distance = locationDistances[path];
       const travelTime = Math.min(distance * 5000, 15000);
       showTravelScreen(path, travelTime);
     };
-    buttons.appendChild(btn);
+    locationButtons.appendChild(btn);
   });
 
-  const extraContent = document.getElementById("extra-content");
-  extraContent.innerHTML = "";
-
-  if (data.characters.length > 0) {
+  if (locationData[playerData.location].characters.length > 0) {
     const charTitle = document.createElement("div");
     charTitle.className = "section-title";
     charTitle.innerText = "Персонажи";
     const content = document.createElement("div");
     content.className = "section-content hidden";
 
-    data.characters.forEach(name => {
+    locationData[playerData.location].characters.forEach(name => {
       const btn = document.createElement("button");
       btn.innerText = name;
+      btn.className = "common-button"; // Используем общий стиль
       btn.style.width = "100%";
       btn.style.margin = "5px 0";
       btn.onclick = () => showNpcDialog(name);
       content.appendChild(btn);
     });
 
-    charTitle.onclick = () => {
+    charTitle.addEventListener("click", () => {
       content.classList.toggle("hidden");
       charTitle.classList.toggle("open");
-    };
+    });
 
     extraContent.appendChild(charTitle);
     extraContent.appendChild(content);
   }
+}
 
-  if (data.monsters.length > 0) {
-    const monTitle = document.createElement("div");
-    monTitle.className = "section-title";
-    monTitle.innerText = "Монстры";
-    const content = document.createElement("div");
-    content.className = "section-content hidden";
+function showTravelScreen(destination, time) {
+  resetScreens();
+  const travelScreen = document.getElementById("travel-screen");
+  document.getElementById("travel-text").innerText = `Вы отправляетесь ${locationAccusative[destination]}. ${travelTexts[destination]}`;
+  travelScreen.classList.remove("hidden");
+  travelScreen.classList.add("visible");
 
-    data.monsters.forEach(name => {
-      const m = document.createElement("div");
-      m.innerText = name;
-      content.appendChild(m);
-    });
+  let remainingTime = time;
+  const timer = setInterval(() => {
+    remainingTime -= 100;
+    document.getElementById("travel-timer").innerText = `Осталось: ${Math.ceil(remainingTime / 1000)} сек.`;
+    if (remainingTime <= 0) {
+      clearInterval(timer);
+      playerData.location = destination;
+      updateLocation();
+      resetScreens();
+      document.getElementById("game-screen").classList.remove("hidden");
+      document.getElementById("game-screen").classList.add("visible");
+      document.getElementById("menu-button").classList.remove("hidden");
+      document.getElementById("menu-button").classList.add("visible");
+    }
+  }, 100);
+}
 
-    monTitle.onclick = () => {
-      content.classList.toggle("hidden");
-      monTitle.classList.toggle("open");
-    };
+function showAboutCharacter() {
+  resetScreens();
+  const charScreen = document.getElementById("character-screen");
+  const charImage = document.getElementById("character-image");
+  const playerLevel = document.getElementById("player-level");
+  const currentXp = document.getElementById("current-xp");
+  const xpToNext = document.getElementById("xp-to-next");
+  const xpFill = document.getElementById("xp-fill");
+  const charStats = document.getElementById("character-stats");
 
-    extraContent.appendChild(monTitle);
-    extraContent.appendChild(content);
+  charImage.src = classData[playerData.class].image;
+  playerLevel.innerText = playerData.level;
+  currentXp.innerText = playerData.xp;
+  xpToNext.innerText = Math.floor(100 * Math.pow(1.5, playerData.level - 1));
+  xpFill.style.width = `${(playerData.xp / Math.floor(100 * Math.pow(1.5, playerData.level - 1))) * 100}%`;
+
+  charStats.innerHTML = `
+    <div class="stat-row"><span>Сила:</span><span>${playerData.stats.strength}</span></div>
+    <div class="stat-row"><span>Ловкость:</span><span>${playerData.stats.agility}</span></div>
+    <div class="stat-row"><span>Выносливость:</span><span>${playerData.stats.endurance}</span></div>
+    <div class="stat-row"><span>Удача:</span><span>${playerData.stats.luck}</span></div>
+  `;
+
+  const equipmentSlots = document.querySelectorAll(".equipment-slot");
+  equipmentSlots.forEach(slot => {
+    slot.innerText = "";
+    slot.style.backgroundImage = "none";
+  });
+
+  if (playerData.equipment.helmet) {
+    document.querySelector('[data-slot="helmet"]').innerText = playerData.equipment.helmet;
+  }
+  if (playerData.equipment.armor) {
+    document.querySelector('[data-slot="armor"]').innerText = playerData.equipment.armor;
+  }
+  if (playerData.equipment.boots) {
+    document.querySelector('[data-slot="boots"]').innerText = playerData.equipment.boots;
+  }
+  if (playerData.equipment.weapon1) {
+    document.querySelector('[data-slot="weapon1"]').innerText = playerData.equipment.weapon1;
+  }
+  if (playerData.equipment.weapon2) {
+    document.querySelector('[data-slot="weapon2"]').innerText = playerData.equipment.weapon2;
+  }
+  if (playerData.equipment.amulet) {
+    document.querySelector('[data-slot="amulet"]').innerText = playerData.equipment.amulet;
+  }
+
+  charScreen.classList.remove("hidden");
+  charScreen.classList.add("visible");
+  document.getElementById("menu-button").classList.remove("hidden");
+  document.getElementById("menu-button").classList.add("visible");
+}
+
+function gainXp(amount) {
+  playerData.xp += amount;
+  const xpToNextLevel = Math.floor(100 * Math.pow(1.5, playerData.level - 1));
+  while (playerData.xp >= xpToNextLevel) {
+    playerData.xp -= xpToNextLevel;
+    playerData.level += 1;
+    playerData.stats.strength += 1;
+    playerData.stats.agility += 1;
+    playerData.stats.endurance += 1;
+    playerData.stats.luck += 1;
+    alert(`Поздравляем! Вы достигли ${playerData.level} уровня!`);
+  }
+  saveGame();
+  if (!document.getElementById("character-screen").classList.contains("hidden")) {
+    showAboutCharacter();
   }
 }
+
+function getItemType(item) {
+  if (item === "Лук" || item === "Меч" || item === "Кинжал" || item === "Щит") return "weapon";
+  if (item === "Кожаная броня" || item === "Стальная броня" || item === "Плащ") return "armor";
+  if (item === "Кольчужный капюшон") return "helmet";
+  if (item === "Походные сапоги" || item === "Укрепленные сапоги") return "boots";
+  if (item === "Зелье здоровья") return "potion";
+  if (item === "Маска") return "amulet";
+  return "keyItem";
+}
+
+function recalculateModifiers() {
+  playerData.modifiers = { speedFactor: 1.0, damageReduction: 1.0, damageBoost: 1.0 };
+  if (playerData.class === "archer") playerData.modifiers.speedFactor = 0.9;
+  if (playerData.class === "warrior") playerData.modifiers.damageReduction = 0.85;
+  if (playerData.class === "rogue") playerData.modifiers.damageBoost = 1.2;
+
+  if (playerData.equipment.boots === "Походные сапоги") playerData.modifiers.speedFactor *= 0.9;
+  if (playerData.equipment.armor === "Стальная броня") playerData.modifiers.damageReduction *= 0.9;
+}
+
+console.log("script.js loaded");
