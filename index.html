@@ -1,153 +1,69 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Endless Adventure</title>
-  <link rel="stylesheet" href="style.css">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Uncial+Antiqua&display=swap" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Тест Битвы</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background: #000;
+      color: white;
+      font-family: sans-serif;
+    }
+
+    #battle-screen {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      align-items: center;
+      background-color: #111;
+      z-index: 100;
+    }
+
+    #battle-content {
+      width: 100%;
+      max-width: 600px;
+      padding: 20px;
+      box-sizing: border-box;
+      background-color: #222;
+      border: 2px dashed red;
+    }
+
+    #battle-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    button {
+      padding: 12px;
+      background: #444;
+      color: white;
+      border: none;
+      width: 100%;
+      max-width: 300px;
+      margin: 0 auto;
+      font-size: 16px;
+    }
+  </style>
 </head>
 <body>
-  <div id="splash-dev" class="hidden">
-    <p>by merzlyakov</p>
-    <img src="Images/dev_logo.jpg" alt="Логотип разработчика">
-  </div>
-  <div id="splash-title" class="hidden">
-    <div>Endless</div>
-    <div>Adventure</div>
-  </div>
-  <div id="main-menu" class="hidden">
-    <div id="main-menu-title">
-      <div>Endless</div>
-      <div>Adventure</div>
-    </div>
-    <button class="menu-button common-button" onclick="newGame()">Новая игра</button>
-    <button class="menu-button common-button" onclick="continueGame()">Продолжить игру</button>
-    <button class="menu-button common-button" onclick="showAbout()">Об игре</button>
-  </div>
-  <div id="about-screen" class="hidden">
-    <h1>Об игре</h1>
-    <p>by merzlyakov</p>
-    <button class="back-button common-button" onclick="backToGame()">Назад</button>
-  </div>
-  <div id="class-selection" class="hidden">
-    <h2>Выберите класс персонажа</h2>
-    <div class="class-option" data-class="archer" onclick="toggleClassInfo(this)">
-      <div class="class-name-row">
-        <img src="Images/npc/archer.jpg" alt="Следопыт">
-        <span class="class-name">Следопыт</span>
+  <div id="battle-screen">
+    <div id="battle-content">
+      <div id="battle-header">
+        <h2>Вас атакует Древесный ужас</h2>
+        <p>❤️ 190 / 190</p>
       </div>
-      <div class="class-details hidden">
-        <p>Искры глаз следят за каждым движением в чаще, а стрелы бьют без промаха.</p>
-        <p><strong>Особенность:</strong> Перемещается на 10% быстрее.</p>
-        <p><strong>Экипировка:</strong> Лук, Кожаная броня, Кольчужный капюшон</p>
+      <div id="battle-actions">
+        <button>Атаковать</button>
+        <button>Выпить зелье</button>
       </div>
     </div>
-    <div class="class-option" data-class="warrior" onclick="toggleClassInfo(this)">
-      <div class="class-name-row">
-        <img src="Images/npc/warrior.jpg" alt="Воин">
-        <span class="class-name">Воин</span>
-      </div>
-      <div class="class-details hidden">
-        <p>Сильный и выносливый боец, готовый стоять до последнего.</p>
-        <p><strong>Особенность:</strong> Получает на 15% меньше урона.</p>
-        <p><strong>Экипировка:</strong> Меч, Щит, Стальная броня</p>
-      </div>
-    </div>
-    <div class="class-option" data-class="rogue" onclick="toggleClassInfo(this)">
-      <div class="class-name-row">
-        <img src="Images/npc/rogue.jpg" alt="Разбойник">
-        <span class="class-name">Разбойник</span>
-      </div>
-      <div class="class-details hidden">
-        <p>Тень, что крадётся в ночи, с клинком, готовым к удару.</p>
-        <p><strong>Особенность:</strong> Наносит на 20% больше урона при скрытной атаке.</p>
-        <p><strong>Экипировка:</strong> Кинжалы, Плащ, Маска</p>
-      </div>
-    </div>
-    <button class="common-button" onclick="selectClass()">Выбрать</button>
   </div>
-  <div id="game-screen" class="hidden">
-    <h2 id="location-name"></h2>
-    <p id="location-desc"></p>
-    <div id="location-buttons"></div>
-    <div id="extra-content"></div>
-  </div>
-  <div id="travel-screen" class="hidden">
-    <p id="travel-timer"></p>
-    <p id="travel-text"></p>
-  </div>
-  <div id="npc-dialog" class="hidden">
-    <img id="npc-image" src="" alt="NPC">
-    <h2 id="npc-name"></h2>
-    <p id="npc-desc"></p>
-    <p id="npc-text"></p>
-    <p id="quest-limit-msg" class="hidden">Слишком много квестов! (макс. 4)</p>
-    <button id="npc-quest" class="common-button" onclick="takeQuest()">Взять задание</button>
-    <button id="npc-exit" class="common-button" onclick="closeNpcDialog()">Назад</button>
-  </div>
-  <div id="quests-screen" class="hidden">
-    <h2>Квесты</h2>
-    <div id="quests-list"></div>
-    <button class="back-button common-button" onclick="backToGame()">Назад</button>
-  </div>
-  <div id="inventory-screen" class="hidden">
-    <h2>Инвентарь</h2>
-    <div id="inventory-tabs">
-      <button class="tab-button common-button" data-tab="weapons">⚔️</button>
-      <button class="tab-button common-button" data-tab="armor">🛡️</button>
-      <button class="tab-button common-button" data-tab="potions">🧪</button>
-      <button class="tab-button common-button" data-tab="keyItems">🗝️</button>
-    </div>
-    <div id="inventory-list"></div>
-    <p id="inventory-empty" class="hidden">Инвентарь пуст</p>
-    <button class="back-button common-button" onclick="backToGame()">Назад</button>
-  </div>
-  <div id="character-screen" class="hidden">
-    <div id="level-info">
-      <p>Уровень: <span id="player-level"></span></p>
-      <div id="xp-bar-container">
-        <div id="xp-bar">
-          <div id="xp-fill"></div>
-        </div>
-      </div>
-      <p><span id="current-xp"></span> / <span id="xp-to-next"></span> опыта</p>
-    </div>
-    <div class="character-equipment-grid">
-      <div class="equipment-column">
-        <div class="equipment-slot" data-slot="helmet"></div>
-        <div class="equipment-slot" data-slot="armor"></div>
-        <div class="equipment-slot" data-slot="boots"></div>
-      </div>
-      <div class="character-image-container">
-        <img id="character-image" src="" alt="Персонаж">
-      </div>
-      <div class="equipment-column">
-        <div class="equipment-slot" data-slot="weapon1"></div>
-        <div class="equipment-slot" data-slot="weapon2"></div>
-        <div class="equipment-slot" data-slot="amulet"></div>
-      </div>
-    </div>
-    <div id="character-stats"></div>
-    <button class="back-button common-button" onclick="backToGame()">Назад</button>
-  </div>
-  <div id="trade-screen" class="hidden">
-    <h2 id="trade-title"></h2>
-    <div id="trade-items"></div>
-    <button class="back-button common-button" onclick="backToGame()">Назад</button>
-  </div>
-  <div id="menu-button" class="hidden common-button" onclick="toggleMenu()">☰</div>
-  <div id="sidebar-menu" class="hidden">
-    <button id="sidebar-close" class="common-button">
-      <img src="Images/close.png" alt="Закрыть" style="width: 100%; height: 100%; object-fit: contain;">
-    </button>
-    <button class="common-button" onclick="showAboutCharacter()">ℹ️ О персонаже</button>
-    <button class="common-button" onclick="showInventory()">🎒 Инвентарь</button>
-    <button class="common-button" onclick="showSkills()">⚔️ Умения</button>
-    <button class="common-button" onclick="showQuests()">📜 Квесты</button>
-  </div>
-  <script src="script.js"></script>
 </body>
 </html>
